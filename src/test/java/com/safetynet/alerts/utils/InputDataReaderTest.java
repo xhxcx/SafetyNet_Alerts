@@ -1,13 +1,8 @@
 package com.safetynet.alerts.utils;
 
-import com.safetynet.alerts.model.FireStation;
-import com.safetynet.alerts.model.MedicalRecord;
-import com.safetynet.alerts.model.Person;
-import org.junit.jupiter.api.Nested;
+import com.safetynet.alerts.model.AlertsData;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -19,48 +14,25 @@ public class InputDataReaderTest {
     private String testFilePath = "./src/test/resources/data.json";
 
     @Test
-    public void readPersonsFromDataFileTest(){
-        List<Person> allPersons = inputDataReaderUT.getAllPersonsFromFile(testFilePath);
-        assertThat(allPersons.size()).isEqualTo(23);
-        assertThat(allPersons.get(0).getFirstName()).isEqualTo("John");
+    public void loadDataTest(){
+        AlertsData alertsData = inputDataReaderUT.loadData(testFilePath);
+        //Person asserts
+        assertThat(alertsData.getPersons().size()).isEqualTo(23);
+        assertThat(alertsData.getPersons().get(0).getFirstName()).isEqualTo("John");
+
+        //FireStation assert
+        assertThat(alertsData.getFirestations().size()).isEqualTo(13);
+        assertThat(alertsData.getFirestations().get(0).getStation()).isEqualTo(3);
+
+        //MedicalRecord assert
+        assertThat(alertsData.getMedicalrecords().size()).isEqualTo(23);
+        assertThat(alertsData.getMedicalrecords().get(0).getFirstName()).isEqualTo("John");
     }
 
     @Test
-    public void readFireStationsFromDataFileTest(){
-        List<FireStation> allFireStations = inputDataReaderUT.getAllStationsFromFile(testFilePath);
-        assertThat(allFireStations.size()).isEqualTo(13);
-        assertThat(allFireStations.get(0).getStationNumber()).isEqualTo(3);
-    }
-
-    @Test
-    public void readMedicalRecordsFromDataFileTest(){
-        List<MedicalRecord> allMedicalRecords = inputDataReaderUT.getAllMedicalRecordsFromFile(testFilePath);
-        assertThat(allMedicalRecords.size()).isEqualTo(23);
-        assertThat(allMedicalRecords.get(0).getFirstName()).isEqualTo("John");
-    }
-
-    @Nested
-    class ReadTestErrors{
-        @Test
-        public void readPersonsFromDataFileErrorTest(){
-            List<Person> allPersons = inputDataReaderUT.getAllPersonsFromFile("notFound");
-            assertThat(allPersons.size()).isEqualTo(0);
-            assertThatIOException();
-        }
-
-        @Test
-        public void readStationsFromDataFileErrorTest(){
-            List<FireStation> allStations = inputDataReaderUT.getAllStationsFromFile("notFound");
-            assertThat(allStations.size()).isEqualTo(0);
-            assertThatIOException();
-        }
-
-        @Test
-        public void readMedicalRecordsFromDataFileErrorTest(){
-            List<MedicalRecord> allMedicalRecords = inputDataReaderUT.getAllMedicalRecordsFromFile("notFound");
-            assertThat(allMedicalRecords.size()).isEqualTo(0);
-            assertThatIOException();
-        }
+    public void loadDataErrorTest(){
+        AlertsData alertsData = inputDataReaderUT.loadData("Not Found");
+        assertThat(alertsData).isNull();
     }
 
 }
