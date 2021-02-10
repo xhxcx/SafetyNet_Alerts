@@ -11,7 +11,7 @@ public class MedicalRecord {
 
     private String lastName;
 
-    private String birthDate;
+    private String birthdate;
 
     private List<String> medications;
 

@@ -7,6 +7,6 @@ public class FireStation {
 
     private String address;
 
-    private int stationNumber;
+    private int station;
 
 }
