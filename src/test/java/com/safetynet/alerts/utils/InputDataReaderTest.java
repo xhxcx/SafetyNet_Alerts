@@ -11,7 +11,7 @@ public class InputDataReaderTest {
 
     private InputDataReader inputDataReaderUT = new InputDataReader();
 
-    private String testFilePath = "./src/test/resources/data.json";
+    private String testFilePath = "./src/test/resources/data-test.json";
 
     @Test
     public void loadDataTest(){
