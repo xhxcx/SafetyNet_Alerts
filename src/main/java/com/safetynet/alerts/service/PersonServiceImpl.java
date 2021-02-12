@@ -44,6 +44,7 @@ public class PersonServiceImpl implements PersonService {
         if(null != person) {
             personToProcess = getPersonIfExistsInDataList(person.getFirstName(), person.getLastName());
             if (null == personToProcess) {
+                //TODO remove condition is empty on firstName and lastName that duplicate getPersonIfExist
                 if (!person.getFirstName().isEmpty() && !person.getLastName().isEmpty()) {
                     personToProcess = personRepository.createPerson(person);
                 }
@@ -92,6 +93,8 @@ public class PersonServiceImpl implements PersonService {
      *
      * @param firstName
      * @param lastName
+     *
+     * @Return true if suppression is ok
      */
     @Override
     public boolean deletePerson(String firstName, String lastName){
@@ -121,6 +124,7 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Person getPersonIfExistsInDataList(String firstName, String lastName){
         Person existingPerson = new Person();
+        //TODO eviter de refaire appel à get ?
         List<Person> allPersons = getAllPersons();
         if (!firstName.isEmpty() && !lastName.isEmpty() && null != firstName && null != lastName) {
             existingPerson = allPersons.stream()
