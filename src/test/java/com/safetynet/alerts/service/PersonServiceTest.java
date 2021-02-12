@@ -2,10 +2,7 @@ package com.safetynet.alerts.service;
 
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.repository.PersonRepository;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -31,8 +28,8 @@ public class PersonServiceTest {
     @InjectMocks
     private PersonServiceImpl personServiceUT;
 
-    @BeforeEach
-    private void setUpPerTest(){
+    @BeforeAll
+    private static void setUpTests(){
         person.setFirstName("toto");
         person.setLastName("test");
         person.setAddress("25 rue de paris");
@@ -185,6 +182,40 @@ public class PersonServiceTest {
             when(personRepositoryMock.getPersons()).thenReturn(personList);
             assertThat(personServiceUT.deletePerson(null, person.getLastName())).isFalse();
             verify(personRepositoryMock, Mockito.times(0)).deletePerson(person);
+        }
+    }
+
+    @Nested
+    @DisplayName("GetPersonsEmailsByCity test")
+    class GetPersonsEmailsByCityTest {
+        @Test
+        public void getPersonsEmailsByCityTest() {
+            List<String> expectedEmailList = new ArrayList<>();
+            expectedEmailList.add("toto@test.com");
+            when(personRepositoryMock.getPersons()).thenReturn(personList);
+            assertThat(personServiceUT.getPersonsEmailsByCity("Paris")).isEqualTo(expectedEmailList);
+
+        }
+
+        @Test
+        public void getPersonsEmailsByCityWithNullTest() {
+            when(personRepositoryMock.getPersons()).thenReturn(personList);
+            assertThat(personServiceUT.getPersonsEmailsByCity(null)).isEqualTo(new ArrayList<>());
+
+        }
+
+        @Test
+        public void getPersonsEmailsByCityWithEmptyCityTest() {
+            when(personRepositoryMock.getPersons()).thenReturn(personList);
+            assertThat(personServiceUT.getPersonsEmailsByCity("")).isEqualTo(new ArrayList<>());
+
+        }
+
+        @Test
+        public void getPersonsEmailsByCityWithNoMatchTest() {
+            when(personRepositoryMock.getPersons()).thenReturn(personList);
+            assertThat(personServiceUT.getPersonsEmailsByCity("NYC")).isEqualTo(new ArrayList<>());
+
         }
     }
 

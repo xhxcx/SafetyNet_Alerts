@@ -7,7 +7,9 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -136,6 +138,36 @@ public class PersonServiceImpl implements PersonService {
             log.error("Operation failed :: can not operate a person with empty or null first name / last name");
 
         return existingPerson;
+    }
+
+    /**
+     * Get all emails from persons living in a specific city
+     *
+     * @param cityName where we need to get emails
+     * @return a list of emails if some persons live in the city and have an email, otherwise return an empty list
+     */
+    @Override
+    public List<String> getPersonsEmailsByCity(String cityName) {
+        if (null != getAllPersons() && null != cityName && !cityName.isEmpty()) {
+            List<Person> personListInCity = getAllPersons().stream()
+                    .filter(p -> p.getCity().equalsIgnoreCase(cityName))
+                    .collect(Collectors.toList());
+
+            if(!personListInCity.isEmpty()){
+                return personListInCity.stream()
+                        .filter(person -> (null != person.getEmail() && !person.getEmail().isEmpty()))
+                        .map(person -> person.getEmail())
+                        .collect(Collectors.toList());
+            }
+            else {
+                log.info("No email identified for city : " + cityName);
+                return new ArrayList<>();
+            }
+        }
+        else {
+            log.error("Get emails for city failed :: can't search for a null or empty city");
+            return new ArrayList<>();
+        }
     }
 
 }

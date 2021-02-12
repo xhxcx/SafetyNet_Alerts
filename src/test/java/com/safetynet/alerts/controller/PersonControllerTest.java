@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.service.PersonService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -46,41 +48,53 @@ public class PersonControllerTest {
         person.setEmail("toto@test.com");
     }
 
-    @Test
-    public void getAllPersonsTest() throws Exception {
-        List<Person> personList = new ArrayList<>();
-        personList.add(person);
-        when(personServiceMock.getAllPersons()).thenReturn(personList);
-        mockMvc.perform(get("/persons")).andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].firstName", is("toto")));
+    @Nested
+    @DisplayName("Controller CRUD endpoints")
+    class CRUDEndpointsTests{
+        @Test
+        public void getAllPersonsTest() throws Exception {
+            List<Person> personList = new ArrayList<>();
+            personList.add(person);
+            when(personServiceMock.getAllPersons()).thenReturn(personList);
+            mockMvc.perform(get("/persons")).andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$[0].firstName", is("toto")));
+        }
+
+        @Test
+        public void createNewPersonTest() throws Exception {
+            when(personServiceMock.savePerson(person)).thenReturn(person);
+            mockMvc.perform(post("/person")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(new ObjectMapper().writeValueAsString(person)))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void updatePerson() throws Exception {
+            when(personServiceMock.modifyPerson(person)).thenReturn(person);
+            mockMvc.perform(put("/person")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(existingPersonJson))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        public void deletePerson() throws Exception {
+            mockMvc.perform(delete("/person")
+                    .param("firstName",person.getFirstName())
+                    .param("lastName",person.getLastName()))
+                    .andDo(print())
+                    .andExpect(status().isOk());
+        }
     }
 
     @Test
-    public void createNewPersonTest() throws Exception {
-        when(personServiceMock.savePerson(person)).thenReturn(person);
-        mockMvc.perform(post("/person")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(person)))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void updatePerson() throws Exception {
-        when(personServiceMock.modifyPerson(person)).thenReturn(person);
-        mockMvc.perform(put("/person")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(existingPersonJson))
-                .andDo(print())
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    public void deletePerson() throws Exception {
-        mockMvc.perform(delete("/person")
-                .param("firstName",person.getFirstName())
-                .param("lastName",person.getLastName()))
+    public void getPersonsEmailsByCity() throws Exception {
+        mockMvc.perform(get("/communityEmail")
+                .param("city","Paris"))
                 .andDo(print())
                 .andExpect(status().isOk());
     }

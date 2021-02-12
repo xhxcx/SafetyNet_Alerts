@@ -18,4 +18,6 @@ public interface PersonService {
 
     Person getPersonIfExistsInDataList(String firstName, String lastName);
 
+    List<String> getPersonsEmailsByCity(String cityName);
+
 }

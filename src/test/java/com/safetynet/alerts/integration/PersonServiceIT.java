@@ -72,4 +72,8 @@ public class PersonServiceIT {
         assertThat(new File(outputFilePath)).exists();
     }
 
+    @Test
+    public void personService_shouldReturnEmailList_whenGetPersonsEmailsByCity(){
+        assertThat(personServiceUT.getPersonsEmailsByCity("Culver").size()).isEqualTo(23);
+    }
 }

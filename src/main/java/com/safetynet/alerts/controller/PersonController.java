@@ -13,6 +13,9 @@ public class PersonController {
     @Autowired
     private PersonService personService;
 
+    /*
+     * Person CRUD endpoints
+     */
     @GetMapping("/persons")
     public List<Person> getAllPersons(){
         return personService.getAllPersons();
@@ -33,5 +36,9 @@ public class PersonController {
         personService.deletePerson(firstName,lastName);
     }
 
+    @GetMapping("/communityEmail")
+    public List<String> getPersonsEmailsByCity(@RequestParam("city") String cityName) {
+        return personService.getPersonsEmailsByCity(cityName);
+    }
 
 }
