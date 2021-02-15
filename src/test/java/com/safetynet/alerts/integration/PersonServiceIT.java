@@ -37,7 +37,7 @@ public class PersonServiceIT {
     }
 
     @Test
-    @Order(4)
+    @Order(5)
     public void personService_shouldReturnTheCreatedPerson_andAddTheNewPersonInOutputJsonFile_whenSavePerson(){
        Person personToCreate = new Person();
        personToCreate.setFirstName("New");
@@ -51,7 +51,7 @@ public class PersonServiceIT {
     }
 
     @Test
-    @Order(2)
+    @Order(3)
     public void personService_shouldReturnTheUpdatedPerson_andUpdateThePersonInOutputJsonFile_whenModifyPerson(){
         Person personToModify = new Person();
         personToModify.setFirstName("Eric");
@@ -65,7 +65,7 @@ public class PersonServiceIT {
     }
 
     @Test
-    @Order(3)
+    @Order(4)
     public void personService_shouldReturnTrue_andDeleteThePersonInOutputJsonFile_whenDeletePerson(){
         assertThat(personServiceUT.deletePerson("Eric","Cadigan")).isTrue();
         assertThat(personServiceUT.getAllPersons().size()).isEqualTo(22);
@@ -73,6 +73,7 @@ public class PersonServiceIT {
     }
 
     @Test
+    @Order(2)
     public void personService_shouldReturnEmailList_whenGetPersonsEmailsByCity(){
         assertThat(personServiceUT.getPersonsEmailsByCity("Culver").size()).isEqualTo(23);
     }
