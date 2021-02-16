@@ -1,5 +1,6 @@
 package com.safetynet.alerts.integration;
 
+import com.safetynet.alerts.model.dto.CoveredPersonDTO;
 import com.safetynet.alerts.service.FireStationDistrictServiceImpl;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,5 +30,19 @@ public class FireStationDistrictServiceIT {
 
         assertThat(fireStationDistrictServiceUT.getPhonesByStationNumber(4).size()).isEqualTo(4);
         assertThat(fireStationDistrictServiceUT.getPhonesByStationNumber(4).containsAll(expectedPhones)).isTrue();
+    }
+
+    @Test
+    public void fireStationDistrictService_shouldReturnAListCoveredPerson_andACountRegardingPersonAge_whenGetFireStationDistrictCoverage() {
+        CoveredPersonDTO expectedPerson = new CoveredPersonDTO();
+        expectedPerson.setFirstName("Tony");
+        expectedPerson.setLastName("Cooper");
+        expectedPerson.setPhone("841-874-6874");
+        expectedPerson.setAddress("112 Steppes Pl");
+
+        assertThat(fireStationDistrictServiceUT.getFireStationDistrictCoverage(4).getCoveredPersonDTOList().size()).isEqualTo(4);
+        assertThat(fireStationDistrictServiceUT.getFireStationDistrictCoverage(4).getChildrenCount()).isEqualTo(0);
+        assertThat(fireStationDistrictServiceUT.getFireStationDistrictCoverage(4).getAdultCount()).isEqualTo(4);
+        assertThat(fireStationDistrictServiceUT.getFireStationDistrictCoverage(4).getCoveredPersonDTOList().contains(expectedPerson)).isTrue();
     }
 }

@@ -106,7 +106,7 @@ public class FireStationServiceImpl implements FireStationService {
     @Override
     public FireStation getFireStationIfExists(FireStation fireStation) {
         FireStation existingFireStation;
-        //TODO eviter de refaire appel à get ?
+        //TODO eviter de refaire appel à get ? Autowire l'objet alertData KO
         List<FireStation> fireStationList = getFireStations();
         existingFireStation = fireStationList.stream()
                 .filter((fs)->fs.getAddress().equalsIgnoreCase(fireStation.getAddress())&&fs.getStation()==fireStation.getStation())
