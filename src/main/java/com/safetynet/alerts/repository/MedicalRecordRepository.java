@@ -56,4 +56,11 @@ public class MedicalRecordRepository {
         alertsDataOutputWriter.writeAsJsonIntoFile(getAlertsData,outputFilePath);
         log.info("Medical record of " + medicalRecord.getFirstName() + " " + medicalRecord.getLastName() + " deleted from persons !");
     }
+
+    public MedicalRecord getMedicalRecordByName(String firstName, String lastName){
+        return getAlertsData.getMedicalrecords().stream()
+                .filter(person -> firstName.equalsIgnoreCase(person.getFirstName()) && lastName.equalsIgnoreCase(person.getLastName()))
+                .findAny()
+                .orElse(null);
+    }
 }

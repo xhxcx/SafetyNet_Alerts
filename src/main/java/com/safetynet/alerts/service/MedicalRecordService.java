@@ -15,6 +15,4 @@ public interface MedicalRecordService {
     MedicalRecord updateMedicalRecord(MedicalRecord medicalRecord);
 
     boolean deleteMedicalRecord(String medicalRecordFirstName, String medicalRecordLastName);
-
-    MedicalRecord getMedicalRecordIfExists(String firstName, String lastName);
 }

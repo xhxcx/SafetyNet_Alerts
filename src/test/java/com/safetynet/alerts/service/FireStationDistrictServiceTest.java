@@ -77,6 +77,7 @@ public class FireStationDistrictServiceTest {
 
             when(fireStationRepositoryMock.getFireStations()).thenReturn(fireStationList);
             when(personRepositoryMock.getPersons()).thenReturn(personList);
+            when(personRepositoryMock.getPersonsByAddress(any(String.class))).thenReturn(personList);
             assertThat(fireStationDistrictService.getPhonesByStationNumber(1)).isEqualTo(expectedPhoneList);
 
         }
@@ -135,7 +136,10 @@ public class FireStationDistrictServiceTest {
 
             when(fireStationRepositoryMock.getFireStations()).thenReturn(fireStationList);
             when(personRepositoryMock.getPersons()).thenReturn(personList);
+            when(personRepositoryMock.getPersonsByAddress(any(String.class))).thenReturn(personList);
             when(medicalRecordRepository.getMedicalRecords()).thenReturn(medicalRecordList);
+            when(medicalRecordRepository.getMedicalRecordByName("toto","test")).thenReturn(medicalRecordToto);
+            when(medicalRecordRepository.getMedicalRecordByName("tyler","durden")).thenReturn(medicalRecordTyler);
             assertThat(fireStationDistrictService.getFireStationDistrictCoverage(1).getAdultCount()).isEqualTo(1);
             assertThat(fireStationDistrictService.getFireStationDistrictCoverage(1).getChildrenCount()).isEqualTo(1);
             assertThat(fireStationDistrictService.getFireStationDistrictCoverage(1).getCoveredPersonDTOList().size()).isEqualTo(2);

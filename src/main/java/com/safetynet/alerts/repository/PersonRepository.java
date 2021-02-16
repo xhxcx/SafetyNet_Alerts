@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Repository
@@ -60,5 +61,11 @@ public class PersonRepository {
         getAlertsData.getPersons().remove(person);
         alertsDataOutputWriter.writeAsJsonIntoFile(getAlertsData,outputFilePath);
         log.info(person.getFirstName() + " " + person.getLastName() + " deleted from persons !");
+    }
+
+    public List<Person> getPersonsByAddress(String address){
+       return getAlertsData.getPersons().stream()
+                .filter(person -> person.getAddress().equalsIgnoreCase(address))
+                .collect(Collectors.toList());
     }
 }

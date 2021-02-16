@@ -38,8 +38,8 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
      */
     @Override
     public MedicalRecord saveMedicalRecord(MedicalRecord medicalRecord) {
-        if(null != medicalRecord){
-            medicalRecordToProcess = getMedicalRecordIfExists(medicalRecord.getFirstName(),medicalRecord.getLastName());
+        if(null != medicalRecord && !medicalRecord.getFirstName().isEmpty() && !medicalRecord.getLastName().isEmpty()){
+            medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(medicalRecord.getFirstName(),medicalRecord.getLastName());
             if (null == medicalRecordToProcess){
                medicalRecordToProcess = medicalRecordRepository.createMedicalRecord(medicalRecord);
             }
@@ -50,7 +50,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         }
         else{
             medicalRecordToProcess=null;
-            log.error("MedicalRecord creation failed :: Can't create a null medical record");
+            log.error("MedicalRecord creation failed :: Can't create medical record for null or empty person");
         }
 
         return medicalRecordToProcess;
@@ -66,7 +66,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     @Override
     public MedicalRecord updateMedicalRecord(MedicalRecord medicalRecord) {
         if(null != medicalRecord){
-            medicalRecordToProcess = getMedicalRecordIfExists(medicalRecord.getFirstName(),medicalRecord.getLastName());
+            medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(medicalRecord.getFirstName(),medicalRecord.getLastName());
             if (null != medicalRecordToProcess)
                 medicalRecordToProcess = medicalRecordRepository.updateMedicalRecord(medicalRecord);
             else
@@ -93,7 +93,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     public boolean deleteMedicalRecord(String firstName, String lastName) {
         boolean deleteResult = false;
         if (null != firstName && null != lastName){
-            medicalRecordToProcess = getMedicalRecordIfExists(firstName,lastName);
+            medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(firstName,lastName);
             if (null != medicalRecordToProcess) {
                 medicalRecordRepository.deleteMedicalRecord(medicalRecordToProcess);
                 deleteResult = true;
@@ -104,32 +104,5 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
         else
             log.error("MedicalRecord delete failed :: Can't delete a null medical record");
         return deleteResult;
-    }
-
-
-    /**
-     * Search in the medical records if a medical record already exists for the given owner
-     * Match on medical record made on combination first name / last name
-     *
-     * @param firstName first name of the owner of the medical record
-     * @param lastName last name of the owner of the medical record
-     * @return Medical record for the given owner or null if no record found
-     */
-    //TODO éviter de faire du duplicate code dans chaque service
-    @Override
-    public MedicalRecord getMedicalRecordIfExists(String firstName, String lastName) {
-        MedicalRecord existingMedicalRecord = new MedicalRecord();
-        //TODO eviter de refaire appel à get ?
-        List<MedicalRecord> allMedicalRecords = getMedicalRecords();
-        if (!firstName.isEmpty() && !lastName.isEmpty() && null != firstName && null != lastName) {
-            existingMedicalRecord = allMedicalRecords.stream()
-                    .filter((p) -> firstName.equalsIgnoreCase(p.getFirstName()) && lastName.equalsIgnoreCase(p.getLastName()))
-                    .findAny()
-                    .orElse(null);
-        }
-        else
-            log.error("Operation failed :: can not operate a person with empty or null first name / last name");
-
-        return existingMedicalRecord;
     }
 }

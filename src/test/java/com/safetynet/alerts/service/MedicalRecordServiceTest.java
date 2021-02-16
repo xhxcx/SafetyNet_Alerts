@@ -98,6 +98,7 @@ public class MedicalRecordServiceTest {
         public void saveAlreadyExistingMedicalRecordTest(){
             when(medicalRecordRepositoryMock.getMedicalRecords()).thenReturn(medicalRecordList);
             when(medicalRecordRepositoryMock.createMedicalRecord(medicalRecord)).thenReturn(null);
+            when(medicalRecordRepositoryMock.getMedicalRecordByName(any(String.class),any(String.class))).thenReturn(medicalRecord);
             assertThat(medicalRecordService.saveMedicalRecord(medicalRecord)).isNull();
             verify(medicalRecordRepositoryMock, Mockito.times(0)).createMedicalRecord(any(MedicalRecord.class));
         }
@@ -136,6 +137,7 @@ public class MedicalRecordServiceTest {
         public void modifyMedicalRecordTest(){
             when(medicalRecordRepositoryMock.getMedicalRecords()).thenReturn(medicalRecordList);
             when(medicalRecordRepositoryMock.updateMedicalRecord(any(MedicalRecord.class))).thenReturn(medicalRecord);
+            when(medicalRecordRepositoryMock.getMedicalRecordByName(any(String.class),any(String.class))).thenReturn(medicalRecord);
             assertThat(medicalRecordService.updateMedicalRecord(medicalRecord)).isEqualTo(medicalRecord);
             verify(medicalRecordRepositoryMock,Mockito.times(1)).updateMedicalRecord(any(MedicalRecord.class));
 
@@ -175,6 +177,7 @@ public class MedicalRecordServiceTest {
         @Test
         public void deleteMedicalRecordTest() {
             when(medicalRecordRepositoryMock.getMedicalRecords()).thenReturn(medicalRecordList);
+            when(medicalRecordRepositoryMock.getMedicalRecordByName(any(String.class),any(String.class))).thenReturn(medicalRecord);
             assertThat(medicalRecordService.deleteMedicalRecord(medicalRecord.getFirstName(), medicalRecord.getLastName())).isTrue();
             verify(medicalRecordRepositoryMock, Mockito.times(1)).deleteMedicalRecord(any(MedicalRecord.class));
 

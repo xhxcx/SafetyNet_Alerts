@@ -79,19 +79,13 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
         List<Person> personList = getPersonsByFireStation(stationNumber);
 
         if(!personList.isEmpty()){
-            //TODO comment faire plus propre ?
             for(Person p : personList){
                 CoveredPersonDTO coveredPerson = new CoveredPersonDTO();
                 int personAge = -1;
-                //TODO prévoir méthode get medicalRecord par prénom/nom ou par personne
-                MedicalRecord personRecord = medicalRecordRepository.getMedicalRecords()
-                        .stream()
-                        .filter(medicalRecord -> medicalRecord.getFirstName().equalsIgnoreCase(p.getFirstName())&&medicalRecord.getLastName().equalsIgnoreCase(p.getLastName()))
-                        .findAny()
-                        .orElse(null);
+                MedicalRecord pRecord = medicalRecordRepository.getMedicalRecordByName(p.getFirstName(),p.getLastName());
 
-                if (null != personRecord) {
-                    personAge = new AlertsDateUtil().calculateAge(LocalDate.parse(personRecord.getBirthdate(), DateTimeFormatter.ofPattern("MM/dd/uuuu")));
+                if (null != pRecord) {
+                    personAge = new AlertsDateUtil().calculateAge(LocalDate.parse(pRecord.getBirthdate(), DateTimeFormatter.ofPattern("MM/dd/uuuu")));
                 }
 
                 coveredPerson.setFirstName(p.getFirstName());
@@ -132,16 +126,11 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
 
         //Build a list of person parsing every fire station addresses
         if (!addressList.isEmpty()) {
-            //TODO sortir dans une méthode réutilisable pour les prochains endpoints (dans PersonRepository ?)
-            List<Person>personAtAddress = new ArrayList<>();
-            for (String address : addressList){
-                personAtAddress = personRepository.getPersons().stream()
-                        .filter(person -> person.getAddress().equalsIgnoreCase(address))
-                        .collect(Collectors.toList());
-                if(!personAtAddress.isEmpty()) {
-                    personList.addAll(personAtAddress);
-                }
-            }
+            addressList.forEach(address -> {
+                List<Person> personsAtAddress = personRepository.getPersonsByAddress(address);
+                if (!personsAtAddress.isEmpty())
+                    personList.addAll(personsAtAddress);
+            });
         }
         return personList;
     }
