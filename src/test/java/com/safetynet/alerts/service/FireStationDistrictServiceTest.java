@@ -5,6 +5,7 @@ import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.model.dto.DisasterVictimDTO;
 import com.safetynet.alerts.model.dto.FireDTO;
+import com.safetynet.alerts.model.dto.FloodDTO;
 import com.safetynet.alerts.repository.FireStationRepository;
 import com.safetynet.alerts.repository.MedicalRecordRepository;
 import com.safetynet.alerts.repository.PersonRepository;
@@ -17,8 +18,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -206,6 +206,68 @@ public class FireStationDistrictServiceTest {
             FireDTO result = fireStationDistrictService.getFireInformationByAddress("");
             assertThat(result.getStationNumberList()).isNull();
             assertThat(result.getVictimList()).isNull();
+        }
+    }
+
+    @Nested
+    @DisplayName("Flood information tests")
+    class GetFloodInformationByStationsTest{
+        @Test
+        public void getFloodInformationByStationsTest(){
+            List<FireStation> fireStationList = new ArrayList<>();
+            List<Person> personList = new ArrayList<>();
+            List<MedicalRecord> medicalRecordList = new ArrayList<>();
+
+            MedicalRecord medicalRecordToto = setNewMedicalRecord("toto","test","01/01/2020","med1","al");
+            MedicalRecord medicalRecordTyler = setNewMedicalRecord("tyler","durden","01/01/1980","","peanut");
+
+            fireStationList.add(fireStation);
+            personList.add(person1);
+            personList.add(person2);
+            medicalRecordList.add(medicalRecordToto);
+            medicalRecordList.add(medicalRecordTyler);
+
+            DisasterVictimDTO victimToto = new DisasterVictimDTO();
+            victimToto.setLastName(person1.getLastName());
+            victimToto.setPhone(person1.getPhone());
+            victimToto.setAge(LocalDate.now().getYear() - 2020);
+            victimToto.setMedications(medicalRecordToto.getMedications());
+            victimToto.setAllergies(medicalRecordToto.getAllergies());
+
+            DisasterVictimDTO victimTyler = new DisasterVictimDTO();
+            victimTyler.setLastName(person2.getLastName());
+            victimTyler.setPhone(person2.getPhone());
+            victimTyler.setAge(LocalDate.now().getYear() - 1980);
+            victimTyler.setMedications(medicalRecordTyler.getMedications());
+            victimTyler.setAllergies(medicalRecordTyler.getAllergies());
+
+            Map<String,List<DisasterVictimDTO>> expectedMap = new HashMap<>();
+            expectedMap.put("1 rue de paris",new ArrayList<>(Arrays.asList(victimToto,victimTyler)));
+
+            when(fireStationRepositoryMock.getFireStations()).thenReturn(fireStationList);
+            when(personRepositoryMock.getPersons()).thenReturn(personList);
+            when(personRepositoryMock.getPersonsByAddress(any(String.class))).thenReturn(personList);
+            when(medicalRecordRepository.getMedicalRecords()).thenReturn(medicalRecordList);
+            when(medicalRecordRepository.getMedicalRecordByName("toto","test")).thenReturn(medicalRecordToto);
+            when(medicalRecordRepository.getMedicalRecordByName("tyler","durden")).thenReturn(medicalRecordTyler);
+
+            FloodDTO floodDTO = fireStationDistrictService.getFloodInformationByStations(new ArrayList<>(Arrays.asList(1,99)));
+
+            assertThat(floodDTO.getFamilyByAddressList().containsKey("1 rue de paris")).isTrue();
+            assertThat(floodDTO.getFamilyByAddressList()).isEqualTo(expectedMap);
+
+        }
+
+        @Test
+        public void getFloodInformationByEmptyStationsTest(){
+            assertThat(fireStationDistrictService.getFloodInformationByStations(new ArrayList<>())).isNull();
+
+        }
+
+        @Test
+        public void getFloodInformationByNonExistingStationsTest(){
+            FloodDTO floodDTO = fireStationDistrictService.getFloodInformationByStations(new ArrayList<>(Arrays.asList(99)));
+            assertThat(floodDTO.getFamilyByAddressList()).isEmpty();
         }
     }
 

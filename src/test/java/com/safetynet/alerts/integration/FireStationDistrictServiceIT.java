@@ -2,6 +2,7 @@ package com.safetynet.alerts.integration;
 
 import com.safetynet.alerts.model.dto.CoveredPersonDTO;
 import com.safetynet.alerts.model.dto.DisasterVictimDTO;
+import com.safetynet.alerts.model.dto.FloodDTO;
 import com.safetynet.alerts.service.FireStationDistrictServiceImpl;
 import com.safetynet.alerts.utils.AlertsDateUtil;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,9 @@ import org.springframework.test.context.TestPropertySource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -68,5 +71,28 @@ public class FireStationDistrictServiceIT {
 
         assertThat(fireStationDistrictServiceUT.getFireInformationByAddress("112 Steppes Pl").getStationNumberList().size()).isEqualTo(2);
         assertThat(fireStationDistrictServiceUT.getFireInformationByAddress("112 Steppes Pl").getStationNumberList().equals(stationNumberList)).isTrue();
+    }
+
+    @Test
+    public void fireStationDistrictService_shouldReturnAMapWithAddressAsKeyAndListDisasterVictimAsValue_whenGetFloodInformationByStations() {
+        DisasterVictimDTO expectedVictim = new DisasterVictimDTO();
+        expectedVictim.setLastName("Peters");
+        expectedVictim.setPhone("841-874-8888");
+        expectedVictim.setAge(new AlertsDateUtil().calculateAge(LocalDate.parse("04/06/1965", DateTimeFormatter.ofPattern("MM/dd/uuuu"))));
+        expectedVictim.setMedications(new ArrayList<>());
+        expectedVictim.setAllergies(new ArrayList<>());
+
+        List<Integer> stationNumberList = new ArrayList<>();
+        stationNumberList.add(3);
+        stationNumberList.add(4);
+
+        FloodDTO floodDTO = fireStationDistrictServiceUT.getFloodInformationByStations(stationNumberList);
+
+        assertThat(floodDTO.getFamilyByAddressList().size()).isEqualTo(5);
+        assertThat(floodDTO.getFamilyByAddressList().containsKey("112 Steppes Pl")).isTrue();
+        assertThat(floodDTO.getFamilyByAddressList().get("112 Steppes Pl").contains(expectedVictim)).isTrue();
+        assertThat(floodDTO.getFamilyByAddressList().containsKey("834 Binoc Ave")).isTrue();
+        assertThat(floodDTO.getFamilyByAddressList().get("748 Townings Dr").size()).isEqualTo(2);
+
     }
 }
