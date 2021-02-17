@@ -1,5 +1,6 @@
 package com.safetynet.alerts.controller;
 
+import com.safetynet.alerts.model.dto.FireDTO;
 import com.safetynet.alerts.model.dto.FireStationDistrictDTO;
 import com.safetynet.alerts.service.FireStationDistrictService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,10 @@ public class FireStationDistrictController {
     @GetMapping("/firestation")
     public FireStationDistrictDTO getPersonsCoveredByFireStation(@RequestParam("stationNumber") int stationNumber){
         return fireStationDistrictService.getFireStationDistrictCoverage(stationNumber);
+    }
+
+    @GetMapping("/fire")
+    public FireDTO getFireCoverageByAddress(@RequestParam("address") String address){
+        return fireStationDistrictService.getFireInformationByAddress(address);
     }
 }

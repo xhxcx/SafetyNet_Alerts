@@ -3,6 +3,8 @@ package com.safetynet.alerts.service;
 import com.safetynet.alerts.model.FireStation;
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.model.Person;
+import com.safetynet.alerts.model.dto.DisasterVictimDTO;
+import com.safetynet.alerts.model.dto.FireDTO;
 import com.safetynet.alerts.repository.FireStationRepository;
 import com.safetynet.alerts.repository.MedicalRecordRepository;
 import com.safetynet.alerts.repository.PersonRepository;
@@ -14,12 +16,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -58,6 +60,23 @@ public class FireStationDistrictServiceTest {
         person2.setLastName("durden");
         person2.setAddress("1 rue de paris");
         person2.setPhone("0199999999");
+    }
+
+    private MedicalRecord setNewMedicalRecord(String firstName, String lastName, String birthDate, String medication, String allergie){
+        MedicalRecord record = new MedicalRecord();
+        List<String> medicationList = new ArrayList<>();
+        List<String> allergiesList = new ArrayList<>();
+
+        medicationList.add(medication);
+        allergiesList.add(allergie);
+
+        record.setFirstName(firstName);
+        record.setLastName(lastName);
+        record.setBirthdate(birthDate);
+        record.setMedications(medicationList);
+        record.setAllergies(allergiesList);
+
+        return record;
     }
 
     @Nested
@@ -107,26 +126,8 @@ public class FireStationDistrictServiceTest {
             List<Person> personList = new ArrayList<>();
             List<MedicalRecord> medicalRecordList = new ArrayList<>();
 
-            MedicalRecord medicalRecordToto = new MedicalRecord();
-            ArrayList<String> medications = new ArrayList<>();
-            medications.add("med1");
-            ArrayList<String> allergies = new ArrayList<>();
-            allergies.add("al");
-            medicalRecordToto.setFirstName("toto");
-            medicalRecordToto.setLastName("test");
-            medicalRecordToto.setBirthdate("01/01/2020");
-            medicalRecordToto.setMedications(medications);
-            medicalRecordToto.setAllergies(allergies);
-
-            MedicalRecord medicalRecordTyler = new MedicalRecord();
-            ArrayList<String> medicationsTyler = new ArrayList<>();
-            ArrayList<String> allergiesTyler = new ArrayList<>();
-            allergies.add("peanut");
-            medicalRecordTyler.setFirstName("tyler");
-            medicalRecordTyler.setLastName("durden");
-            medicalRecordTyler.setBirthdate("01/01/1980");
-            medicalRecordTyler.setMedications(medicationsTyler);
-            medicalRecordTyler.setAllergies(allergiesTyler);
+            MedicalRecord medicalRecordToto = setNewMedicalRecord("toto","test","01/01/2020","med1","al");
+            MedicalRecord medicalRecordTyler = setNewMedicalRecord("tyler","durden","01/01/1980","","peanut");
 
             fireStationList.add(fireStation);
             personList.add(person1);
@@ -152,17 +153,7 @@ public class FireStationDistrictServiceTest {
             List<Person> personList = new ArrayList<>();
             List<MedicalRecord> medicalRecordList = new ArrayList<>();
 
-            MedicalRecord medicalRecordToto = new MedicalRecord();
-            ArrayList<String> medications = new ArrayList<>();
-            medications.add("med1");
-            ArrayList<String> allergies = new ArrayList<>();
-            allergies.add("al");
-            medicalRecordToto.setFirstName("toto");
-            medicalRecordToto.setLastName("test");
-            medicalRecordToto.setBirthdate("01/01/2020");
-            medicalRecordToto.setMedications(medications);
-            medicalRecordToto.setAllergies(allergies);
-
+            MedicalRecord medicalRecordToto = setNewMedicalRecord("toto","test","01/01/2020","med1","al");
 
             fireStationList.add(fireStation);
             personList.add(person1);
@@ -174,6 +165,47 @@ public class FireStationDistrictServiceTest {
             assertThat(fireStationDistrictService.getFireStationDistrictCoverage(0).getCoveredPersonDTOList()).isNull();
             assertThat(fireStationDistrictService.getFireStationDistrictCoverage(0).getAdultCount()).isEqualTo(0);
             assertThat(fireStationDistrictService.getFireStationDistrictCoverage(0).getChildrenCount()).isEqualTo(0);
+        }
+    }
+
+    @Nested
+    @DisplayName("Fire information tests")
+    class GetFireInformationTests{
+        @Test
+        public void getFireInformationByAddressTest(){
+            List<FireStation> fireStationList = new ArrayList<>();
+            List<Person> personList = new ArrayList<>();
+            List<MedicalRecord> medicalRecordList = new ArrayList<>();
+
+            MedicalRecord medicalRecordToto = setNewMedicalRecord("toto","test","01/01/2020","med1","al");
+
+            fireStationList.add(fireStation);
+            personList.add(person1);
+            medicalRecordList.add(medicalRecordToto);
+
+            DisasterVictimDTO victimToto = new DisasterVictimDTO();
+            victimToto.setLastName(person1.getLastName());
+            victimToto.setPhone(person1.getPhone());
+            victimToto.setAge(LocalDate.now().getYear() - 2020);
+            victimToto.setMedications(medicalRecordToto.getMedications());
+            victimToto.setAllergies(medicalRecordToto.getAllergies());
+
+            when(fireStationRepositoryMock.getFireStations()).thenReturn(fireStationList);
+            when(personRepositoryMock.getPersonsByAddress(any(String.class))).thenReturn(personList);
+            when(medicalRecordRepository.getMedicalRecordByName(any(String.class),any(String.class))).thenReturn(medicalRecordToto);
+
+            FireDTO result = fireStationDistrictService.getFireInformationByAddress("1 rue de paris");
+            assertThat(result.getStationNumberList().size()).isEqualTo(1);
+            assertThat(result.getStationNumberList().contains(1));
+            assertThat(result.getVictimList().size()).isEqualTo(1);
+            assertThat(result.getVictimList().contains(victimToto)).isTrue();
+        }
+
+        @Test
+        public void getFireInformationByEmptyAddressTest(){
+            FireDTO result = fireStationDistrictService.getFireInformationByAddress("");
+            assertThat(result.getStationNumberList()).isNull();
+            assertThat(result.getVictimList()).isNull();
         }
     }
 

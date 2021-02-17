@@ -1,6 +1,8 @@
 package com.safetynet.alerts.controller;
 
 import com.safetynet.alerts.model.dto.CoveredPersonDTO;
+import com.safetynet.alerts.model.dto.DisasterVictimDTO;
+import com.safetynet.alerts.model.dto.FireDTO;
 import com.safetynet.alerts.model.dto.FireStationDistrictDTO;
 import com.safetynet.alerts.service.FireStationDistrictService;
 import org.junit.jupiter.api.Test;
@@ -63,5 +65,24 @@ public class FireStationDistrictControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.coveredPersonDTOList[0].firstName", is("Tyler")))
                 .andExpect(jsonPath("$.adultCount", is(1)));
+    }
+
+    @Test
+    public void getFireCoverageByAddressTest() throws Exception {
+        FireDTO fireDTO = new FireDTO();
+        DisasterVictimDTO disasterVictimDTO = new DisasterVictimDTO();
+
+        disasterVictimDTO.setLastName("Durden");
+
+        fireDTO.setVictimList(new ArrayList<DisasterVictimDTO>(Arrays.asList(disasterVictimDTO)));
+        fireDTO.setStationNumberList(new ArrayList<Integer>(Arrays.asList(1)));
+
+        when(fireStationDistrictServiceMock.getFireInformationByAddress(any(String.class))).thenReturn(fireDTO);
+        mockMvc.perform(get("/fire")
+                .param("address","1 rue de paris"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.victimList[0].lastName", is("Durden")))
+                .andExpect(jsonPath("$.stationNumberList[0]", is(1)));
     }
 }

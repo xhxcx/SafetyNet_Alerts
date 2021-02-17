@@ -1,12 +1,16 @@
 package com.safetynet.alerts.integration;
 
 import com.safetynet.alerts.model.dto.CoveredPersonDTO;
+import com.safetynet.alerts.model.dto.DisasterVictimDTO;
 import com.safetynet.alerts.service.FireStationDistrictServiceImpl;
+import com.safetynet.alerts.utils.AlertsDateUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,5 +48,25 @@ public class FireStationDistrictServiceIT {
         assertThat(fireStationDistrictServiceUT.getFireStationDistrictCoverage(4).getChildrenCount()).isEqualTo(0);
         assertThat(fireStationDistrictServiceUT.getFireStationDistrictCoverage(4).getAdultCount()).isEqualTo(4);
         assertThat(fireStationDistrictServiceUT.getFireStationDistrictCoverage(4).getCoveredPersonDTOList().contains(expectedPerson)).isTrue();
+    }
+
+    @Test
+    public void fireStationDistrictService_shouldReturnAListDisasterVictim_andAListOfStationNumber_whenGetFireInformationByAddress() {
+        DisasterVictimDTO expectedVictim = new DisasterVictimDTO();
+        expectedVictim.setLastName("Peters");
+        expectedVictim.setPhone("841-874-8888");
+        expectedVictim.setAge(new AlertsDateUtil().calculateAge(LocalDate.parse("04/06/1965", DateTimeFormatter.ofPattern("MM/dd/uuuu"))));
+        expectedVictim.setMedications(new ArrayList<>());
+        expectedVictim.setAllergies(new ArrayList<>());
+
+        List<Integer> stationNumberList = new ArrayList<>();
+        stationNumberList.add(3);
+        stationNumberList.add(4);
+
+        assertThat(fireStationDistrictServiceUT.getFireInformationByAddress("112 Steppes Pl").getVictimList().size()).isEqualTo(3);
+        assertThat(fireStationDistrictServiceUT.getFireInformationByAddress("112 Steppes Pl").getVictimList().contains(expectedVictim)).isTrue();
+
+        assertThat(fireStationDistrictServiceUT.getFireInformationByAddress("112 Steppes Pl").getStationNumberList().size()).isEqualTo(2);
+        assertThat(fireStationDistrictServiceUT.getFireInformationByAddress("112 Steppes Pl").getStationNumberList().equals(stationNumberList)).isTrue();
     }
 }

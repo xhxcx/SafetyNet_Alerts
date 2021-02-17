@@ -4,6 +4,8 @@ import com.safetynet.alerts.model.FireStation;
 import com.safetynet.alerts.model.MedicalRecord;
 import com.safetynet.alerts.model.Person;
 import com.safetynet.alerts.model.dto.CoveredPersonDTO;
+import com.safetynet.alerts.model.dto.DisasterVictimDTO;
+import com.safetynet.alerts.model.dto.FireDTO;
 import com.safetynet.alerts.model.dto.FireStationDistrictDTO;
 import com.safetynet.alerts.repository.FireStationRepository;
 import com.safetynet.alerts.repository.MedicalRecordRepository;
@@ -107,6 +109,54 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
         else
             log.error("Get district coverage :: No person covered by station : " + stationNumber);
         return fireStationDistrictCoverage;
+    }
+
+    /**
+     * Get the list of persons living in the area of the given address and the fire station numbers associated to the address
+     * Person information returned : last name, phone, age, medications and allergies
+     *
+     * @param address
+     * @return FireDTO object containing the list of person and the list of fire station numbers
+     */
+    @Override
+    public FireDTO getFireInformationByAddress(String address) {
+        FireDTO fireDTO = new FireDTO();
+        List<DisasterVictimDTO> victims = new ArrayList<>();
+
+        if(!address.isEmpty() && address != null) {
+            //Get station number par address + FireDTO set stationNumbers
+            List<Integer> stationNumbersForAddress = fireStationRepository.getFireStations()
+                    .stream()
+                    .filter(fireStation -> fireStation.getAddress().equalsIgnoreCase(address))
+                    .map(FireStation::getStation)
+                    .collect(Collectors.toList());
+            if (!stationNumbersForAddress.isEmpty()) {
+                fireDTO.setStationNumberList(stationNumbersForAddress);
+            }
+            //Get person by address
+            List<Person> personList = personRepository.getPersonsByAddress(address);
+            if (!personList.isEmpty()) {
+                //For each person => create DisasterVictim list + addAll FireDTO
+                for (Person p : personList) {
+                    DisasterVictimDTO disasterVictim = new DisasterVictimDTO();
+                    MedicalRecord victimRecord = medicalRecordRepository.getMedicalRecordByName(p.getFirstName(), p.getLastName());
+
+                    disasterVictim.setLastName(p.getLastName());
+                    disasterVictim.setPhone(p.getPhone());
+
+                    if (victimRecord != null) {
+                        disasterVictim.setAge(new AlertsDateUtil().calculateAge(LocalDate.parse(victimRecord.getBirthdate(), DateTimeFormatter.ofPattern("MM/dd/uuuu"))));
+                        disasterVictim.setMedications(victimRecord.getMedications());
+                        disasterVictim.setAllergies(victimRecord.getAllergies());
+                    }
+                    victims.add(disasterVictim);
+                }
+                fireDTO.setVictimList(victims);
+            }
+        }
+        else
+            log.error("Get fire information :: Failed, can't retrieve information for null or empty address");
+        return fireDTO;
     }
 
 
