@@ -1,5 +1,8 @@
 package com.safetynet.alerts.controller;
 
+import com.safetynet.alerts.model.dto.ChildAlertDTO;
+import com.safetynet.alerts.model.dto.ChildDTO;
+import com.safetynet.alerts.model.dto.FamilyMemberDTO;
 import com.safetynet.alerts.model.dto.PersonInfoDTO;
 import com.safetynet.alerts.service.PersonSpecificInfoService;
 import org.junit.jupiter.api.Test;
@@ -40,5 +43,30 @@ public class PersonSpecificInfoControllerTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].lastName",is("durden")));
+    }
+
+    @Test
+    public void getChildAlertByAddressTest() throws Exception {
+        ChildAlertDTO childAlertDTO = new ChildAlertDTO();
+        ChildDTO childDTO = new ChildDTO();
+        childDTO.setFirstName("Tyler");
+        childDTO.setLastName("Durden");
+        childDTO.setAge(5);
+        childAlertDTO.setChildList(new ArrayList<>(Arrays.asList(childDTO)));
+
+        FamilyMemberDTO familyMemberDTO = new FamilyMemberDTO();
+        familyMemberDTO.setFirstName("Jack");
+        familyMemberDTO.setLastName("Durden");
+
+        childAlertDTO.setFamilyMemberList(new ArrayList<>(Arrays.asList(familyMemberDTO)));
+
+        when(personSpecificInfoServiceMock.getChildAlertByAddress(any(String.class))).thenReturn(new ArrayList<>(Arrays.asList(childAlertDTO)));
+
+        mockMvc.perform(get("/childAlert")
+                .param("address","5th av NYC"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].childList[0].firstName",is("Tyler")))
+                .andExpect(jsonPath("$[0].familyMemberList[0].firstName",is("Jack")));
     }
 }

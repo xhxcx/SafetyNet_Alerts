@@ -1,5 +1,6 @@
 package com.safetynet.alerts.controller;
 
+import com.safetynet.alerts.model.dto.ChildAlertDTO;
 import com.safetynet.alerts.model.dto.PersonInfoDTO;
 import com.safetynet.alerts.service.PersonSpecificInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,5 +19,10 @@ public class PersonSpecificInfoController {
     @GetMapping("/personInfo")
     public List<PersonInfoDTO> getPersonInfoByName(@RequestParam("firstName") String firstName,@RequestParam("lastName") String lastName){
         return personSpecificInfoService.getPersonInfo(firstName,lastName);
+    }
+
+    @GetMapping("/childAlert")
+    public List<ChildAlertDTO> getChildAlertByAddress(@RequestParam("address") String address){
+        return personSpecificInfoService.getChildAlertByAddress(address);
     }
 }
