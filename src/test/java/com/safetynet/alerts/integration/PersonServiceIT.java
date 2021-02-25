@@ -42,6 +42,7 @@ public class PersonServiceIT {
        Person personToCreate = new Person();
        personToCreate.setFirstName("New");
        personToCreate.setLastName("Person");
+       personToCreate.setAddress("1 rue de paris");
        Person resultPerson = personServiceUT.savePerson(personToCreate);
 
        assertThat(resultPerson.getFirstName()).isEqualTo("New");
