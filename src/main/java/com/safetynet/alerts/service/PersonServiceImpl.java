@@ -46,10 +46,8 @@ public class PersonServiceImpl implements PersonService {
         if(null != person) {
             personToProcess = getPersonIfExistsInDataList(person.getFirstName(), person.getLastName());
             if (null == personToProcess) {
-                //TODO remove condition is empty on firstName and lastName that duplicate getPersonIfExist
-                if (!person.getFirstName().isEmpty() && !person.getLastName().isEmpty()) {
-                    personToProcess = personRepository.createPerson(person);
-                }
+                personToProcess = personRepository.createPerson(person);
+                log.info("New person created with following informations :" + person);
             }
             else {
                 log.error("Creation failed :: The person : " + person + " is already known");
@@ -77,6 +75,7 @@ public class PersonServiceImpl implements PersonService {
             personToProcess = getPersonIfExistsInDataList(person.getFirstName(), person.getLastName());
             if (null != personToProcess) {
                 personToProcess = personRepository.updatePerson(person);
+                log.info(person.getFirstName() + " " + person.getLastName() + " updated !");
             } else
                 log.error("Modification failed :: No person match for first name = " + person.getFirstName() + " - last name = " + person.getLastName());
         }
@@ -107,6 +106,7 @@ public class PersonServiceImpl implements PersonService {
             if (null != personToProcess) {
                 personRepository.deletePerson(personToProcess);
                 isDeleted = true;
+                log.info(firstName + " " + lastName + " deleted from persons !");
             } else
                 log.error("Suppression failed :: No person match for first name = " + firstName + " - last name = " + lastName);
         }
@@ -126,13 +126,13 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public Person getPersonIfExistsInDataList(String firstName, String lastName){
         Person existingPerson = new Person();
-        //TODO eviter de refaire appel à get ?
         List<Person> allPersons = getAllPersons();
         if (!firstName.isEmpty() && !lastName.isEmpty() && null != firstName && null != lastName) {
             existingPerson = allPersons.stream()
                 .filter((p) -> firstName.equalsIgnoreCase(p.getFirstName()) && lastName.equalsIgnoreCase(p.getLastName()))
                 .findAny()
                 .orElse(null);
+            log.debug("Verify if a person named : " + firstName + " - " + lastName + "already exists ");
         }
         else
             log.error("Operation failed :: can not operate a person with empty or null first name / last name");
@@ -154,6 +154,7 @@ public class PersonServiceImpl implements PersonService {
                     .collect(Collectors.toList());
 
             if(!personListInCity.isEmpty()){
+                log.info("All emails from people who live in the city : " + cityName + " are retrieved.");
                 return personListInCity.stream()
                         .filter(person -> (null != person.getEmail() && !person.getEmail().isEmpty()))
                         .map(person -> person.getEmail())

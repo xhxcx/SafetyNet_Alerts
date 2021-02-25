@@ -41,6 +41,7 @@ public class FireStationServiceImpl implements FireStationService {
             fireStationToProcess = getFireStationIfExists(fireStation);
             if (null == fireStationToProcess){
                 fireStationToProcess = fireStationRepository.createFireStation(fireStation);
+                log.info("New fire station created with following information :" + fireStation);
             }
             else {
                 fireStationToProcess = null;
@@ -62,8 +63,10 @@ public class FireStationServiceImpl implements FireStationService {
     public FireStation updateFireStation(FireStation fireStation) {
         if(null != fireStation){
             fireStationToProcess = getFireStationIfExists(fireStation);
-            if (null != fireStationToProcess)
+            if (null != fireStationToProcess) {
                 fireStationToProcess = fireStationRepository.updateFireStation(fireStation);
+                log.info(fireStation.getAddress() + " " + fireStation.getStation() + " updated !");
+            }
             else
                 log.error("FireStation update failed :: " + fireStation + "does not exist");
         }
@@ -89,6 +92,7 @@ public class FireStationServiceImpl implements FireStationService {
             if (null != fireStationToProcess) {
                 fireStationRepository.deleteFireStation(fireStation);
                 deleteResult = true;
+                log.info(fireStation.getAddress() + " " + fireStation.getStation() + " deleted from fire stations !");
             }
             else
                 log.error("FireStation delete failed :: " + fireStation + "does not exist");
@@ -112,6 +116,7 @@ public class FireStationServiceImpl implements FireStationService {
                 .filter((fs)->fs.getAddress().equalsIgnoreCase(fireStation.getAddress())&&fs.getStation()==fireStation.getStation())
                 .findAny()
                 .orElse(null);
+        log.debug("Verify if the fire station : - " + fireStation + " - already exists");
         return existingFireStation;
     }
 }

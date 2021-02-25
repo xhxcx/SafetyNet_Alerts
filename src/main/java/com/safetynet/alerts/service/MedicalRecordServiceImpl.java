@@ -42,6 +42,7 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
             medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(medicalRecord.getFirstName(),medicalRecord.getLastName());
             if (null == medicalRecordToProcess){
                medicalRecordToProcess = medicalRecordRepository.createMedicalRecord(medicalRecord);
+                log.info("New medical record created with following information :" + medicalRecord);
             }
             else {
                 medicalRecordToProcess=null;
@@ -67,8 +68,10 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     public MedicalRecord updateMedicalRecord(MedicalRecord medicalRecord) {
         if(null != medicalRecord){
             medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(medicalRecord.getFirstName(),medicalRecord.getLastName());
-            if (null != medicalRecordToProcess)
+            if (null != medicalRecordToProcess) {
                 medicalRecordToProcess = medicalRecordRepository.updateMedicalRecord(medicalRecord);
+                log.info("Medical record of " + medicalRecord.getFirstName() + " " + medicalRecord.getLastName() + " updated !");
+            }
             else
                 log.error("MedicalRecord update failed :: " + medicalRecord + "does not exist");
         }
@@ -97,9 +100,10 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
             if (null != medicalRecordToProcess) {
                 medicalRecordRepository.deleteMedicalRecord(medicalRecordToProcess);
                 deleteResult = true;
+                log.info("Medical record of " + firstName + " " + lastName + " deleted !");
             }
             else
-                log.error("Suppression failed :: No medical record match for first name = " + firstName + " - last name = " + lastName);
+                log.error("MedicalRecord delete failed :: No medical record match for first name = " + firstName + " - last name = " + lastName);
         }
         else
             log.error("MedicalRecord delete failed :: Can't delete a null medical record");

@@ -32,6 +32,14 @@ public class PersonSpecificInfoServiceImpl implements PersonSpecificInfoService 
     @Autowired
     private MedicalRecordRepository medicalRecordRepository;
 
+    /**
+     * Get some information about a specific person
+     * Based on first name and last name, return last name, address, age, email, medications and allergies of the person.
+     *
+     * @param firstName
+     * @param lastName
+     * @return a list of PersonInfoDTO if there are homonyms
+     */
     @Override
     public List<PersonInfoDTO> getPersonInfo(String firstName, String lastName) {
         List<PersonInfoDTO> personInfoDTOList = new ArrayList<>();
@@ -51,9 +59,10 @@ public class PersonSpecificInfoServiceImpl implements PersonSpecificInfoService 
                 personInfoDTO.setAllergies(record.getAllergies());
                 personInfoDTOList.add(personInfoDTO);
             }
+            log.info("Person Info for : " + firstName + " - " + lastName + " are retrieved.");
         }
         else{
-            log.info("Person Info : nobody found for : " + firstName + " - " + lastName);
+            log.info("Person Info :: nobody found for : " + firstName + " - " + lastName);
             return new ArrayList<>();
         }
         return personInfoDTOList;
@@ -105,10 +114,14 @@ public class PersonSpecificInfoServiceImpl implements PersonSpecificInfoService 
                     }
                 });
 
-        if(childAlertDTOList.size() == 0)
+        if(childAlertDTOList.size() == 0) {
+            log.info("No children at address : " + address);
             return new ArrayList<>();
-        else
+        }
+        else {
+            log.info("List of children and their families living at address : " + address + " are retrieved." );
             return childAlertDTOList;
+        }
     }
 
     /**
@@ -122,6 +135,7 @@ public class PersonSpecificInfoServiceImpl implements PersonSpecificInfoService 
         child.setFirstName(person.getFirstName());
         child.setLastName(person.getLastName());
         child.setAge(age);
+        log.debug("Processed person + " + person + " as a child aged " + age+ " !");
         return child;
     }
 }

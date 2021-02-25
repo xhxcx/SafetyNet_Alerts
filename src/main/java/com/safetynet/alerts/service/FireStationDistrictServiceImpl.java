@@ -134,6 +134,7 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
 
             personList.forEach(person -> victimList.add(processPersonsIntoVictims(person)));
             fireDTO.setVictimList(victimList);
+            log.info("Inhabitants and fire station numbers are retrieved for address : " + address);
         }
         else
             log.error("Get fire information :: Failed, can't retrieve information for null or empty address");
@@ -145,7 +146,7 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
      * Victim information returned : last name, phone, age, medications and allergies
      *
      * @param stationNumbers
-     * @return FloodDTO object containing the list of victims grouped by address of empty map if no persons covered by stations
+     * @return FloodDTO object containing the list of victims grouped by address or empty map if no persons covered by stations
      */
     @Override
     public FloodDTO getFloodInformationByStations(List<Integer> stationNumbers) {
@@ -163,8 +164,8 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
                                 .stream().map(person -> processPersonsIntoVictims(person))
                                 .collect(Collectors.toList())));
 
-
                 floodDTO.setFamilyByAddressList(familyMap);
+                log.info("Families grouped by address retrieved for flood alert in stations : " + stationNumbers);
             } else {
                 floodDTO.setFamilyByAddressList(new HashMap<>());
                 log.info("Flood information :: Nothing to retrieve for station numbers : " + stationNumbers);
@@ -185,7 +186,7 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
      */
     private List<Person> getPersonsByFireStation(int stationNumber){
         List<Person> personList = new ArrayList<>();
-
+        log.debug("Get dependent persons from station : " + stationNumber);
         //Get all address covered by a station number
         List<String> addressList = fireStationRepository.getFireStations().stream()
                 .filter(fireStation -> fireStation.getStation() == stationNumber)
@@ -214,6 +215,7 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
     private DisasterVictimDTO processPersonsIntoVictims(Person person) {
         DisasterVictimDTO victim = new DisasterVictimDTO();
 
+        log.debug("Process a DisasterVictim from person : " + person);
         if (person != null) {
             MedicalRecord victimRecord = medicalRecordRepository.getMedicalRecordByName(person.getFirstName(), person.getLastName());
 
