@@ -36,7 +36,7 @@ public class FireStationRepository {
                 .filter((fs)->fs.getAddress().equalsIgnoreCase(fireStation.getAddress())&&fs.getStation()==fireStation.getStation())
                 .findAny()
                 .orElse(null);
-        if(null != fireStationToUpdate){
+        if(fireStationToUpdate != null){
             getAlertsData.getFirestations().set(getAlertsData.getFirestations().indexOf(fireStationToUpdate),fireStation);
             alertsDataOutputWriter.writeAsJsonIntoFile(getAlertsData, outputFilePath);
         }

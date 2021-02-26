@@ -38,9 +38,9 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
      */
     @Override
     public MedicalRecord saveMedicalRecord(MedicalRecord medicalRecord) {
-        if(null != medicalRecord && !medicalRecord.getFirstName().isEmpty() && !medicalRecord.getLastName().isEmpty()){
+        if(medicalRecord != null && !medicalRecord.getFirstName().isEmpty() && !medicalRecord.getLastName().isEmpty()){
             medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(medicalRecord.getFirstName(),medicalRecord.getLastName());
-            if (null == medicalRecordToProcess){
+            if (medicalRecordToProcess == null){
                medicalRecordToProcess = medicalRecordRepository.createMedicalRecord(medicalRecord);
                 log.info("New medical record created with following information :" + medicalRecord);
             }
@@ -66,9 +66,9 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
      */
     @Override
     public MedicalRecord updateMedicalRecord(MedicalRecord medicalRecord) {
-        if(null != medicalRecord){
+        if(medicalRecord != null){
             medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(medicalRecord.getFirstName(),medicalRecord.getLastName());
-            if (null != medicalRecordToProcess) {
+            if (medicalRecordToProcess != null) {
                 medicalRecordToProcess = medicalRecordRepository.updateMedicalRecord(medicalRecord);
                 log.info("Medical record of " + medicalRecord.getFirstName() + " " + medicalRecord.getLastName() + " updated !");
             }
@@ -76,7 +76,6 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
                 log.error("MedicalRecord update failed :: " + medicalRecord + "does not exist");
         }
         else{
-            //TODO pourquoi besoin de le préciser alors que dans la décla de la variable j'ai null et que ce n'est pas set entre temps ?
             medicalRecordToProcess = null;
             log.error("MedicalRecord update failed :: Can't update a null medical record");
         }
@@ -95,9 +94,9 @@ public class MedicalRecordServiceImpl implements MedicalRecordService {
     @Override
     public boolean deleteMedicalRecord(String firstName, String lastName) {
         boolean deleteResult = false;
-        if (null != firstName && null != lastName){
+        if (firstName != null && lastName != null){
             medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(firstName,lastName);
-            if (null != medicalRecordToProcess) {
+            if (medicalRecordToProcess != null) {
                 medicalRecordRepository.deleteMedicalRecord(medicalRecordToProcess);
                 deleteResult = true;
                 log.info("Medical record of " + firstName + " " + lastName + " deleted !");

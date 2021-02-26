@@ -38,7 +38,7 @@ public class AlertsDateUtil {
      * @return the age in years or -1 if birthdate is invalid
      */
     public int calculateAge(LocalDate birthDate){
-        if(null != birthDate) {
+        if(birthDate != null) {
             return Period.between(birthDate, getCurrentLocalDate()).getYears();
         }
         else

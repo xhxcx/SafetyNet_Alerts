@@ -82,7 +82,7 @@ public class FireStationDistrictServiceImpl implements FireStationDistrictServic
                 int personAge = -1;
                 MedicalRecord pRecord = medicalRecordRepository.getMedicalRecordByName(p.getFirstName(),p.getLastName());
 
-                if (null != pRecord) {
+                if (pRecord != null) {
                     personAge = new AlertsDateUtil().calculateAge(LocalDate.parse(pRecord.getBirthdate(), DateTimeFormatter.ofPattern("MM/dd/uuuu")));
                 }
 

@@ -20,7 +20,7 @@ public class AlertsDataOutputWriterImpl implements AlertsDataOutputWriter{
 
     @Override
     public void writeAsJsonIntoFile(AlertsData dataObject, String filePath) {
-        if (null != dataObject) {
+        if (dataObject != null) {
             try (FileOutputStream fos = new FileOutputStream(filePath)) {
                 objectMapper.writerWithDefaultPrettyPrinter().writeValue(fos, dataObject);
                 log.info("JSON file update :: SUCCEED");

@@ -43,9 +43,9 @@ public class PersonServiceImpl implements PersonService {
      */
     @Override
     public Person savePerson(Person person){
-        if(null != person) {
+        if(person != null) {
             personToProcess = getPersonIfExistsInDataList(person.getFirstName(), person.getLastName());
-            if (null == personToProcess) {
+            if (personToProcess == null) {
                 personToProcess = personRepository.createPerson(person);
                 log.info("New person created with following informations :" + person);
             }
@@ -71,9 +71,9 @@ public class PersonServiceImpl implements PersonService {
      */
     @Override
     public Person modifyPerson (Person person){
-        if(null != person) {
+        if(person != null) {
             personToProcess = getPersonIfExistsInDataList(person.getFirstName(), person.getLastName());
-            if (null != personToProcess) {
+            if (personToProcess != null) {
                 personToProcess = personRepository.updatePerson(person);
                 log.info(person.getFirstName() + " " + person.getLastName() + " updated !");
             } else
@@ -100,10 +100,10 @@ public class PersonServiceImpl implements PersonService {
     @Override
     public boolean deletePerson(String firstName, String lastName){
         boolean isDeleted = false;
-        if(null != firstName && null != lastName) {
+        if(firstName != null && lastName != null) {
             personToProcess = getPersonIfExistsInDataList(firstName, lastName);
 
-            if (null != personToProcess) {
+            if (personToProcess != null) {
                 personRepository.deletePerson(personToProcess);
                 isDeleted = true;
                 log.info(firstName + " " + lastName + " deleted from persons !");
@@ -127,7 +127,7 @@ public class PersonServiceImpl implements PersonService {
     public Person getPersonIfExistsInDataList(String firstName, String lastName){
         Person existingPerson = new Person();
         List<Person> allPersons = getAllPersons();
-        if (!firstName.isEmpty() && !lastName.isEmpty() && null != firstName && null != lastName) {
+        if (!firstName.isEmpty() && !lastName.isEmpty()) {
             existingPerson = allPersons.stream()
                 .filter((p) -> firstName.equalsIgnoreCase(p.getFirstName()) && lastName.equalsIgnoreCase(p.getLastName()))
                 .findAny()
@@ -148,7 +148,7 @@ public class PersonServiceImpl implements PersonService {
      */
     @Override
     public List<String> getPersonsEmailsByCity(String cityName) {
-        if (null != getAllPersons() && null != cityName && !cityName.isEmpty()) {
+        if (getAllPersons() != null && cityName != null && !cityName.isEmpty()) {
             List<Person> personListInCity = getAllPersons().stream()
                     .filter(p -> p.getCity().equalsIgnoreCase(cityName))
                     .collect(Collectors.toList());
@@ -156,8 +156,8 @@ public class PersonServiceImpl implements PersonService {
             if(!personListInCity.isEmpty()){
                 log.info("All emails from people who live in the city : " + cityName + " are retrieved.");
                 return personListInCity.stream()
-                        .filter(person -> (null != person.getEmail() && !person.getEmail().isEmpty()))
-                        .map(person -> person.getEmail())
+                        .filter(person -> (person.getEmail() != null && !person.getEmail().isEmpty()))
+                        .map(Person::getEmail)
                         .collect(Collectors.toList());
             }
             else {

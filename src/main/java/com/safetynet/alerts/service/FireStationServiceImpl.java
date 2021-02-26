@@ -37,9 +37,9 @@ public class FireStationServiceImpl implements FireStationService {
      */
     @Override
     public FireStation saveFireStation(FireStation fireStation) {
-        if(null != fireStation){
+        if(fireStation != null){
             fireStationToProcess = getFireStationIfExists(fireStation);
-            if (null == fireStationToProcess){
+            if (fireStationToProcess == null){
                 fireStationToProcess = fireStationRepository.createFireStation(fireStation);
                 log.info("New fire station created with following information :" + fireStation);
             }
@@ -61,9 +61,9 @@ public class FireStationServiceImpl implements FireStationService {
      */
     @Override
     public FireStation updateFireStation(FireStation fireStation) {
-        if(null != fireStation){
+        if(fireStation != null){
             fireStationToProcess = getFireStationIfExists(fireStation);
-            if (null != fireStationToProcess) {
+            if (fireStationToProcess != null) {
                 fireStationToProcess = fireStationRepository.updateFireStation(fireStation);
                 log.info(fireStation.getAddress() + " " + fireStation.getStation() + " updated !");
             }
@@ -87,9 +87,9 @@ public class FireStationServiceImpl implements FireStationService {
     @Override
     public boolean deleteFireStation(FireStation fireStation) {
         boolean deleteResult = false;
-        if (null != fireStation){
+        if (fireStation != null){
             fireStationToProcess = getFireStationIfExists(fireStation);
-            if (null != fireStationToProcess) {
+            if (fireStationToProcess != null) {
                 fireStationRepository.deleteFireStation(fireStation);
                 deleteResult = true;
                 log.info(fireStation.getAddress() + " " + fireStation.getStation() + " deleted from fire stations !");

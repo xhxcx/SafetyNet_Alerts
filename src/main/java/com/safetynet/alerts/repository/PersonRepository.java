@@ -44,7 +44,7 @@ public class PersonRepository {
                 .filter((p)->p.getFirstName().equalsIgnoreCase(person.getFirstName()) && p.getLastName().equalsIgnoreCase(person.getLastName()))
                 .findAny()
                 .orElse(null);
-        if (null != personToModify){
+        if (personToModify != null){
             int personToUpdateId = getAlertsData.getPersons().indexOf(personToModify);
             getAlertsData.getPersons().set(personToUpdateId,person);
             alertsDataOutputWriter.writeAsJsonIntoFile(getAlertsData,outputFilePath);

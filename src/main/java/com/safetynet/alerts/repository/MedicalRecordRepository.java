@@ -34,7 +34,7 @@ public class MedicalRecordRepository {
                 .filter((medRecord)->medRecord.getFirstName().equalsIgnoreCase(medicalRecord.getFirstName()) && medRecord.getLastName().equalsIgnoreCase(medicalRecord.getLastName()))
                 .findAny()
                 .orElse(null);
-        if (null != medicalRecordToModify){
+        if (medicalRecordToModify != null){
             getAlertsData.getMedicalrecords().set(getAlertsData.getMedicalrecords().indexOf(medicalRecordToModify),medicalRecord);
             alertsDataOutputWriter.writeAsJsonIntoFile(getAlertsData,outputFilePath);
         }
