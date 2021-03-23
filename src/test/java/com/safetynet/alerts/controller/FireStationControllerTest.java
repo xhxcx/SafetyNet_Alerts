@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -51,17 +52,17 @@ public class FireStationControllerTest {
 
     @Test
     public void addNewFireStations() throws Exception {
-        when(fireStationServiceMock.saveFireStation(fireStation)).thenReturn(fireStation);
+        when(fireStationServiceMock.saveFireStation(any(FireStation.class))).thenReturn(fireStation);
         mockMvc.perform(post("/firestation")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(fireStation)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
     public void modifyFireStations() throws Exception {
-        when(fireStationServiceMock.updateFireStation(fireStation)).thenReturn(fireStation);
+        when(fireStationServiceMock.updateFireStation(any(FireStation.class))).thenReturn(fireStation);
         mockMvc.perform(put("/firestation")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(fireStation)))

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = PersonController.class)
 public class PersonControllerTest {
 
-    private String existingPersonJson = "{ \"firstName\":\"Eric\", \"lastName\":\"Cadigan\", \"address\":\"951 LoneTree Rd\", \"city\":\"Culver\", \"zip\":\"97451\", \"phone\":\"841-874-7458\", \"email\":\"gramps@email.com\" }";
+    private String existingPersonJson = "{ \"firstName\":\"toto\", \"lastName\":\"test\", \"address\":\"951 LoneTree Rd\", \"city\":\"Culver\", \"zip\":\"97451\", \"phone\":\"841-874-7458\", \"email\":\"gramps@email.com\" }";
     private static Person person = new Person();
 
     @Autowired
@@ -63,17 +63,17 @@ public class PersonControllerTest {
 
         @Test
         public void createNewPersonTest() throws Exception {
-            when(personServiceMock.savePerson(person)).thenReturn(person);
+            when(personServiceMock.savePerson(any(Person.class))).thenReturn(person);
             mockMvc.perform(post("/person")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(new ObjectMapper().writeValueAsString(person)))
                     .andDo(print())
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
         }
 
         @Test
         public void updatePerson() throws Exception {
-            when(personServiceMock.modifyPerson(person)).thenReturn(person);
+            when(personServiceMock.modifyPerson(any(Person.class))).thenReturn(person);
             mockMvc.perform(put("/person")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(existingPersonJson))
@@ -83,6 +83,7 @@ public class PersonControllerTest {
 
         @Test
         public void deletePerson() throws Exception {
+            when(personServiceMock.deletePerson("toto","test")).thenReturn(true);
             mockMvc.perform(delete("/person")
                     .param("firstName",person.getFirstName())
                     .param("lastName",person.getLastName()))

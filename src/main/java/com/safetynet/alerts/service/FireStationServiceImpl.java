@@ -71,7 +71,6 @@ public class FireStationServiceImpl implements FireStationService {
                 log.error("FireStation update failed :: " + fireStation + "does not exist");
         }
         else{
-            //TODO pourquoi besoin de le préciser alors que dans la décla de la variable j'ai null et que ce n'est pas set entre temps ?
             fireStationToProcess = null;
             log.error("FireStation update failed :: Can't update a null fire station");
         }
@@ -110,7 +109,6 @@ public class FireStationServiceImpl implements FireStationService {
     @Override
     public FireStation getFireStationIfExists(FireStation fireStation) {
         FireStation existingFireStation;
-        //TODO eviter de refaire appel à get ? Autowire l'objet alertData KO
         List<FireStation> fireStationList = getFireStations();
         existingFireStation = fireStationList.stream()
                 .filter((fs)->fs.getAddress().equalsIgnoreCase(fireStation.getAddress())&&fs.getStation()==fireStation.getStation())

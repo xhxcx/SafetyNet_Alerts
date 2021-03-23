@@ -166,7 +166,7 @@
 							<goal>report-integration</goal>
 						</goals>
 					</execution>
-					<!-- Merge unit tests and integration tests -->
+					<!-- Merge unit tests and integration tests report -->
 					<execution>
 						<id>merge-unit-and-integration-test</id>
 						<phase>post-integration-test</phase>

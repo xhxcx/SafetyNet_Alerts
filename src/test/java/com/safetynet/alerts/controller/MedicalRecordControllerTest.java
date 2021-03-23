@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -57,17 +58,17 @@ public class MedicalRecordControllerTest {
 
     @Test
     public void createNewMedicalRecordTest() throws Exception {
-        when(medicalRecordServiceMock.saveMedicalRecord(medicalRecord)).thenReturn(medicalRecord);
+        when(medicalRecordServiceMock.saveMedicalRecord(any(MedicalRecord.class))).thenReturn(medicalRecord);
         mockMvc.perform(post("/medicalRecord")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(medicalRecord)))
                 .andDo(print())
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
     }
 
     @Test
     public void updateMedicalRecord() throws Exception {
-        when(medicalRecordServiceMock.updateMedicalRecord(medicalRecord)).thenReturn(medicalRecord);
+        when(medicalRecordServiceMock.updateMedicalRecord(any(MedicalRecord.class))).thenReturn(medicalRecord);
         mockMvc.perform(put("/medicalRecord")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(medicalRecord)))
@@ -77,6 +78,7 @@ public class MedicalRecordControllerTest {
 
     @Test
     public void deleteMedicalRecord() throws Exception {
+        when(medicalRecordServiceMock.deleteMedicalRecord("toto","test")).thenReturn(true);
         mockMvc.perform(delete("/medicalRecord")
                 .param("firstName",medicalRecord.getFirstName())
                 .param("lastName",medicalRecord.getLastName()))
