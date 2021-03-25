@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FireStationServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alerts</a> &gt; <a href="index.source.html" class="el_package">com.safetynet.alerts.service</a> &gt; <span class="el_source">FireStationServiceImpl.java</span></div><h1>FireStationServiceImpl.java</h1><pre class="source lang-java linenums">package com.safetynet.alerts.service;
+
+import com.safetynet.alerts.model.FireStation;
+import com.safetynet.alerts.repository.FireStationRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+<span class="fc" id="L13">public class FireStationServiceImpl implements FireStationService {</span>
+
+<span class="fc" id="L15">    private static final Logger log = LogManager.getLogger(FireStationService.class);</span>
+
+<span class="fc" id="L17">    private static FireStation fireStationToProcess = null;</span>
+
+    @Autowired
+    private FireStationRepository fireStationRepository;
+
+    /**
+     * Get all fire stations from the data entry
+     * @return a list of FireStation objects
+     */
+    @Override
+    public List&lt;FireStation&gt; getFireStations() {
+<span class="fc" id="L28">        return fireStationRepository.getFireStations();</span>
+    }
+
+    /**
+     * Save a new FireStation
+     * If the fire station already exists return null and log error to prevent duplication
+     *
+     * @param fireStation to add
+     * @return saved fire station or null if station already exists or is null
+     */
+    @Override
+    public FireStation saveFireStation(FireStation fireStation) {
+<span class="fc bfc" id="L40" title="All 2 branches covered.">        if(fireStation != null){</span>
+<span class="fc" id="L41">            fireStationToProcess = getFireStationIfExists(fireStation);</span>
+<span class="fc bfc" id="L42" title="All 2 branches covered.">            if (fireStationToProcess == null){</span>
+<span class="fc" id="L43">                fireStationToProcess = fireStationRepository.createFireStation(fireStation);</span>
+<span class="fc" id="L44">                log.info(&quot;New fire station created with following information :&quot; + fireStation);</span>
+            }
+            else {
+<span class="fc" id="L47">                fireStationToProcess = null;</span>
+<span class="fc" id="L48">                log.error(&quot;FireStation creation failed :: FireStation &quot; + fireStation + &quot; already exists&quot;);</span>
+            }
+        }
+        else
+<span class="fc" id="L52">            log.error(&quot;FireStation creation failed :: Can't create a null fire station&quot;);</span>
+<span class="fc" id="L53">        return fireStationToProcess;</span>
+    }
+
+    /**
+     * Modify an existing FireStation
+     * Log error if given fire station doesn't exists in data list or is null
+     * @param fireStation to update
+     * @return Fire station to update if update ok, else return null and log error
+     */
+    @Override
+    public FireStation updateFireStation(FireStation fireStation) {
+<span class="fc bfc" id="L64" title="All 2 branches covered.">        if(fireStation != null){</span>
+<span class="fc" id="L65">            fireStationToProcess = getFireStationIfExists(fireStation);</span>
+<span class="fc bfc" id="L66" title="All 2 branches covered.">            if (fireStationToProcess != null) {</span>
+<span class="fc" id="L67">                fireStationToProcess = fireStationRepository.updateFireStation(fireStation);</span>
+<span class="fc" id="L68">                log.info(fireStation.getAddress() + &quot; &quot; + fireStation.getStation() + &quot; updated !&quot;);</span>
+            }
+            else
+<span class="fc" id="L71">                log.error(&quot;FireStation update failed :: &quot; + fireStation + &quot;does not exist&quot;);</span>
+        }
+        else{
+<span class="fc" id="L74">            fireStationToProcess = null;</span>
+<span class="fc" id="L75">            log.error(&quot;FireStation update failed :: Can't update a null fire station&quot;);</span>
+        }
+<span class="fc" id="L77">        return fireStationToProcess;</span>
+    }
+
+    /**
+     * Delete a given fire station
+     * Log error if given fire station doesn't exists in data list or is null
+     * @param fireStation to delete
+     * @return true if suppression is ok
+     */
+    @Override
+    public boolean deleteFireStation(FireStation fireStation) {
+<span class="fc" id="L88">        boolean deleteResult = false;</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (fireStation != null){</span>
+<span class="fc" id="L90">            fireStationToProcess = getFireStationIfExists(fireStation);</span>
+<span class="fc bfc" id="L91" title="All 2 branches covered.">            if (fireStationToProcess != null) {</span>
+<span class="fc" id="L92">                fireStationRepository.deleteFireStation(fireStation);</span>
+<span class="fc" id="L93">                deleteResult = true;</span>
+<span class="fc" id="L94">                log.info(fireStation.getAddress() + &quot; &quot; + fireStation.getStation() + &quot; deleted from fire stations !&quot;);</span>
+            }
+            else
+<span class="fc" id="L97">                log.error(&quot;FireStation delete failed :: &quot; + fireStation + &quot;does not exist&quot;);</span>
+        }
+        else
+<span class="fc" id="L100">            log.error(&quot;FireStation delete failed :: Can't delete a null fire station&quot;);</span>
+<span class="fc" id="L101">        return deleteResult;</span>
+    }
+
+    /**
+     * Verify if a given fire station exists in the data list with exact match on bot address and station number
+     * @param fireStation to search
+     * @return fire station found if there is a match or null if no match
+     */
+    @Override
+    public FireStation getFireStationIfExists(FireStation fireStation) {
+        FireStation existingFireStation;
+<span class="fc" id="L112">        List&lt;FireStation&gt; fireStationList = getFireStations();</span>
+<span class="fc" id="L113">        existingFireStation = fireStationList.stream()</span>
+<span class="pc bpc" id="L114" title="1 of 4 branches missed.">                .filter((fs)-&gt;fs.getAddress().equalsIgnoreCase(fireStation.getAddress())&amp;&amp;fs.getStation()==fireStation.getStation())</span>
+<span class="fc" id="L115">                .findAny()</span>
+<span class="fc" id="L116">                .orElse(null);</span>
+<span class="fc" id="L117">        log.debug(&quot;Verify if the fire station : - &quot; + fireStation + &quot; - already exists&quot;);</span>
+<span class="fc" id="L118">        return existingFireStation;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

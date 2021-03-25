@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MedicalRecordServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alerts</a> &gt; <a href="index.source.html" class="el_package">com.safetynet.alerts.service</a> &gt; <span class="el_source">MedicalRecordServiceImpl.java</span></div><h1>MedicalRecordServiceImpl.java</h1><pre class="source lang-java linenums">package com.safetynet.alerts.service;
+
+import com.safetynet.alerts.model.MedicalRecord;
+import com.safetynet.alerts.repository.MedicalRecordRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+<span class="fc" id="L13">public class MedicalRecordServiceImpl implements MedicalRecordService {</span>
+
+<span class="fc" id="L15">    private static final Logger log = LogManager.getLogger(MedicalRecordService.class);</span>
+
+<span class="fc" id="L17">    private static MedicalRecord medicalRecordToProcess = null;</span>
+
+    @Autowired
+    private MedicalRecordRepository medicalRecordRepository;
+
+    /**
+     * Get all medical records
+     *
+     * @return a list containing all medical records
+     */
+    @Override
+    public List&lt;MedicalRecord&gt; getMedicalRecords() {
+<span class="fc" id="L29">        return medicalRecordRepository.getMedicalRecords();</span>
+    }
+
+    /**
+     * Save a medical record
+     * Medical record should be new to be saved otherwise log error
+     *
+     * @param medicalRecord to save
+     * @return the medical record if saved, else return null
+     */
+    @Override
+    public MedicalRecord saveMedicalRecord(MedicalRecord medicalRecord) {
+<span class="pc bpc" id="L41" title="1 of 6 branches missed.">        if(medicalRecord != null &amp;&amp; !medicalRecord.getFirstName().isEmpty() &amp;&amp; !medicalRecord.getLastName().isEmpty()){</span>
+<span class="fc" id="L42">            medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(medicalRecord.getFirstName(),medicalRecord.getLastName());</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">            if (medicalRecordToProcess == null){</span>
+<span class="fc" id="L44">               medicalRecordToProcess = medicalRecordRepository.createMedicalRecord(medicalRecord);</span>
+<span class="fc" id="L45">                log.info(&quot;New medical record created with following information :&quot; + medicalRecord);</span>
+            }
+            else {
+<span class="fc" id="L48">                medicalRecordToProcess=null;</span>
+<span class="fc" id="L49">                log.error(&quot;MedicalRecord creation failed :: MedicalRecord \&quot;&quot; + medicalRecord + &quot;\&quot; already exists&quot;);</span>
+            }
+        }
+        else{
+<span class="fc" id="L53">            medicalRecordToProcess=null;</span>
+<span class="fc" id="L54">            log.error(&quot;MedicalRecord creation failed :: Can't create medical record for null or empty person&quot;);</span>
+        }
+
+<span class="fc" id="L57">        return medicalRecordToProcess;</span>
+    }
+
+    /**
+     * Update a medical record
+     * if medical record doesn't exists in the list an error is logged
+     *
+     * @param medicalRecord to update
+     * @return updated medical record if update is ok, else return null
+     */
+    @Override
+    public MedicalRecord updateMedicalRecord(MedicalRecord medicalRecord) {
+<span class="fc bfc" id="L69" title="All 2 branches covered.">        if(medicalRecord != null){</span>
+<span class="fc" id="L70">            medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(medicalRecord.getFirstName(),medicalRecord.getLastName());</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">            if (medicalRecordToProcess != null) {</span>
+<span class="fc" id="L72">                medicalRecordToProcess = medicalRecordRepository.updateMedicalRecord(medicalRecord);</span>
+<span class="fc" id="L73">                log.info(&quot;Medical record of &quot; + medicalRecord.getFirstName() + &quot; &quot; + medicalRecord.getLastName() + &quot; updated !&quot;);</span>
+            }
+            else
+<span class="fc" id="L76">                log.error(&quot;MedicalRecord update failed :: &quot; + medicalRecord + &quot;does not exist&quot;);</span>
+        }
+        else{
+<span class="fc" id="L79">            medicalRecordToProcess = null;</span>
+<span class="fc" id="L80">            log.error(&quot;MedicalRecord update failed :: Can't update a null medical record&quot;);</span>
+        }
+<span class="fc" id="L82">        return medicalRecordToProcess;</span>
+    }
+
+    /**
+     * Delete a medical record
+     * if medical record doesn't exists in the list an error is logged
+     * Match on medical record made on combination first name / last name
+     *
+     * @param firstName first name of the owner of the medical record
+     * @param lastName last name of the owner of the medical record
+     * @return true if delete succeed
+     */
+    @Override
+    public boolean deleteMedicalRecord(String firstName, String lastName) {
+<span class="fc" id="L96">        boolean deleteResult = false;</span>
+<span class="pc bpc" id="L97" title="1 of 4 branches missed.">        if (firstName != null &amp;&amp; lastName != null){</span>
+<span class="fc" id="L98">            medicalRecordToProcess = medicalRecordRepository.getMedicalRecordByName(firstName,lastName);</span>
+<span class="fc bfc" id="L99" title="All 2 branches covered.">            if (medicalRecordToProcess != null) {</span>
+<span class="fc" id="L100">                medicalRecordRepository.deleteMedicalRecord(medicalRecordToProcess);</span>
+<span class="fc" id="L101">                deleteResult = true;</span>
+<span class="fc" id="L102">                log.info(&quot;Medical record of &quot; + firstName + &quot; &quot; + lastName + &quot; deleted !&quot;);</span>
+            }
+            else
+<span class="fc" id="L105">                log.error(&quot;MedicalRecord delete failed :: No medical record match for first name = &quot; + firstName + &quot; - last name = &quot; + lastName);</span>
+        }
+        else
+<span class="fc" id="L108">            log.error(&quot;MedicalRecord delete failed :: Can't delete a null medical record&quot;);</span>
+<span class="fc" id="L109">        return deleteResult;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

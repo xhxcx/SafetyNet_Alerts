@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FireStationDistrictController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alerts</a> &gt; <a href="index.source.html" class="el_package">com.safetynet.alerts.controller</a> &gt; <span class="el_source">FireStationDistrictController.java</span></div><h1>FireStationDistrictController.java</h1><pre class="source lang-java linenums">package com.safetynet.alerts.controller;
+
+import com.safetynet.alerts.model.dto.FireDTO;
+import com.safetynet.alerts.model.dto.FireStationDistrictDTO;
+import com.safetynet.alerts.model.dto.FloodDTO;
+import com.safetynet.alerts.service.FireStationDistrictService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+<span class="fc" id="L15">public class FireStationDistrictController {</span>
+
+    @Autowired
+    private FireStationDistrictService fireStationDistrictService;
+
+    /**
+     * Endpoint to get all phone numbers of people living in the district of the fire stations with the given station number
+     *
+     * @param stationNumber
+     *
+     * @return A list of phone numbers as string
+     */
+    @GetMapping(&quot;/phoneAlert&quot;)
+    public List&lt;String&gt; getPhonesForFireStation(@RequestParam(&quot;firestation&quot;) int stationNumber){
+<span class="nc" id="L29">        return fireStationDistrictService.getPhonesByStationNumber(stationNumber);</span>
+    }
+
+    /**
+     * Endpoint to get all persons and their medical information covered by fire stations with the given station number
+     * Also return the count of adult and the count of child
+     *
+     * @param stationNumber
+     *
+     * @return FireStationDistrictDTO object that contains a list of persons information and the counters
+     */
+    @GetMapping(&quot;/firestation&quot;)
+    public FireStationDistrictDTO getPersonsCoveredByFireStation(@RequestParam(&quot;stationNumber&quot;) int stationNumber){
+<span class="nc" id="L42">        return fireStationDistrictService.getFireStationDistrictCoverage(stationNumber);</span>
+    }
+
+    /**
+     * Endpoint to get all persons and their medical information living at the given address
+     * Also return the list of fire stations covering this address
+     *
+     * @param address
+     * @return FireDTO object that contains a list of persons information and a list of fire station number
+     */
+    @GetMapping(&quot;/fire&quot;)
+    public FireDTO getFireCoverageByAddress(@RequestParam(&quot;address&quot;) String address){
+<span class="nc" id="L54">        return fireStationDistrictService.getFireInformationByAddress(address);</span>
+    }
+
+    /**
+     * Endpoint to get all persons and their medical information covered by fire stations with one of the given station number
+     * Persons are grouped by address
+     *
+     * @param stationList containing the station numbers on whose the search is needed
+     * @return FloodDTO object that contains a list of persons information where persons are grouped by address
+     */
+    @GetMapping(&quot;/flood/stations&quot;)
+    public FloodDTO getFloodCoverageByStations(@RequestParam(&quot;stations&quot;) List&lt;Integer&gt; stationList){
+<span class="nc" id="L66">        return fireStationDistrictService.getFloodInformationByStations(stationList);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

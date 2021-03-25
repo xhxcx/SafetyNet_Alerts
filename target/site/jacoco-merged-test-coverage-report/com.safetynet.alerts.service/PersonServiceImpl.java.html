@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PersonServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alerts</a> &gt; <a href="index.source.html" class="el_package">com.safetynet.alerts.service</a> &gt; <span class="el_source">PersonServiceImpl.java</span></div><h1>PersonServiceImpl.java</h1><pre class="source lang-java linenums">package com.safetynet.alerts.service;
+
+import com.safetynet.alerts.model.Person;
+import com.safetynet.alerts.repository.PersonRepository;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ *
+ */
+@Service
+<span class="fc" id="L18">public class PersonServiceImpl implements PersonService {</span>
+
+<span class="fc" id="L20">    private static final Logger log = LogManager.getLogger(PersonService.class);</span>
+
+<span class="fc" id="L22">    private static Person personToProcess = new Person();</span>
+
+    @Autowired
+    private PersonRepository personRepository;
+
+    /**
+     * Get all the persons from the data source
+     *
+     * @return a list of person
+     */
+    @Override
+    public List&lt;Person&gt; getAllPersons(){
+<span class="fc" id="L34">        return personRepository.getPersons();</span>
+    }
+
+    /**
+     * Save a new person
+     * If person already exists return null and log error to prevent duplication
+     *
+     * @param person to be saved
+     * @return the person saved or null if the param person is already in the list
+     */
+    @Override
+    public Person savePerson(Person person){
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if(person != null) {</span>
+<span class="fc" id="L47">            personToProcess = getPersonIfExistsInDataList(person.getFirstName(), person.getLastName());</span>
+<span class="fc bfc" id="L48" title="All 2 branches covered.">            if (personToProcess == null) {</span>
+<span class="fc" id="L49">                personToProcess = personRepository.createPerson(person);</span>
+<span class="fc" id="L50">                log.info(&quot;New person created with following informations :&quot; + person);</span>
+            }
+            else {
+<span class="fc" id="L53">                log.error(&quot;Creation failed :: The person : &quot; + person + &quot; is already known&quot;);</span>
+<span class="fc" id="L54">                personToProcess=null;</span>
+            }
+        }
+        else {
+<span class="fc" id="L58">            log.error(&quot;Creation failed :: can not create a null person&quot;);</span>
+<span class="fc" id="L59">            personToProcess = null;</span>
+        }
+
+<span class="fc" id="L62">        return personToProcess;</span>
+    }
+
+    /**
+     * Modify an existing person
+     * If the person is not found in the list of person, return null and log an error
+     *
+     * @param person to modify
+     * @return the modified person or null if the param person doesn't exist
+     */
+    @Override
+    public Person modifyPerson (Person person){
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if(person != null) {</span>
+<span class="fc" id="L75">            personToProcess = getPersonIfExistsInDataList(person.getFirstName(), person.getLastName());</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">            if (personToProcess != null) {</span>
+<span class="fc" id="L77">                personToProcess = personRepository.updatePerson(person);</span>
+<span class="fc" id="L78">                log.info(person.getFirstName() + &quot; &quot; + person.getLastName() + &quot; updated !&quot;);</span>
+            } else
+<span class="fc" id="L80">                log.error(&quot;Modification failed :: No person match for first name = &quot; + person.getFirstName() + &quot; - last name = &quot; + person.getLastName());</span>
+        }
+        else {
+<span class="fc" id="L83">            log.error(&quot;Modification failed :: can not modify a null person&quot;);</span>
+<span class="fc" id="L84">            personToProcess = null;</span>
+        }
+
+<span class="fc" id="L87">        return personToProcess;</span>
+
+    }
+
+    /**
+     * Delete an existing person based on the firstName and lastName as identifier
+     * If no match, log an error
+     *
+     * @param firstName
+     * @param lastName
+     *
+     * @Return true if suppression is ok
+     */
+    @Override
+    public boolean deletePerson(String firstName, String lastName){
+<span class="fc" id="L102">        boolean isDeleted = false;</span>
+<span class="pc bpc" id="L103" title="1 of 4 branches missed.">        if(firstName != null &amp;&amp; lastName != null) {</span>
+<span class="fc" id="L104">            personToProcess = getPersonIfExistsInDataList(firstName, lastName);</span>
+
+<span class="fc bfc" id="L106" title="All 2 branches covered.">            if (personToProcess != null) {</span>
+<span class="fc" id="L107">                personRepository.deletePerson(personToProcess);</span>
+<span class="fc" id="L108">                isDeleted = true;</span>
+<span class="fc" id="L109">                log.info(firstName + &quot; &quot; + lastName + &quot; deleted from persons !&quot;);</span>
+            } else
+<span class="fc" id="L111">                log.error(&quot;Suppression failed :: No person match for first name = &quot; + firstName + &quot; - last name = &quot; + lastName);</span>
+        }
+        else
+<span class="fc" id="L114">            log.error(&quot;Suppression failed :: null parameter first name and/or last name&quot;);</span>
+<span class="fc" id="L115">        return isDeleted;</span>
+    }
+
+    /**
+     * Method to verify if the person for identifier first name and last name already exists in the list.
+     * If params are null, log an error and return false
+     *
+     * @param firstName of the person to verify
+     * @param lastName of the person to verify
+     * @return the existing person if exists, else return null
+     */
+    @Override
+    public Person getPersonIfExistsInDataList(String firstName, String lastName){
+<span class="fc" id="L128">        Person existingPerson = new Person();</span>
+<span class="fc" id="L129">        List&lt;Person&gt; allPersons = getAllPersons();</span>
+<span class="pc bpc" id="L130" title="1 of 4 branches missed.">        if (!firstName.isEmpty() &amp;&amp; !lastName.isEmpty()) {</span>
+<span class="fc" id="L131">            existingPerson = allPersons.stream()</span>
+<span class="pc bpc" id="L132" title="1 of 4 branches missed.">                .filter((p) -&gt; firstName.equalsIgnoreCase(p.getFirstName()) &amp;&amp; lastName.equalsIgnoreCase(p.getLastName()))</span>
+<span class="fc" id="L133">                .findAny()</span>
+<span class="fc" id="L134">                .orElse(null);</span>
+<span class="fc" id="L135">            log.debug(&quot;Verify if a person named : &quot; + firstName + &quot; - &quot; + lastName + &quot;already exists &quot;);</span>
+        }
+        else
+<span class="fc" id="L138">            log.error(&quot;Operation failed :: can not operate a person with empty or null first name / last name&quot;);</span>
+
+<span class="fc" id="L140">        return existingPerson;</span>
+    }
+
+    /**
+     * Get all emails from persons living in a specific city
+     *
+     * @param cityName where we need to get emails
+     * @return a list of emails if some persons live in the city and have an email, otherwise return an empty list
+     */
+    @Override
+    public List&lt;String&gt; getPersonsEmailsByCity(String cityName) {
+<span class="pc bpc" id="L151" title="1 of 6 branches missed.">        if (getAllPersons() != null &amp;&amp; cityName != null &amp;&amp; !cityName.isEmpty()) {</span>
+<span class="fc" id="L152">            List&lt;Person&gt; personListInCity = getAllPersons().stream()</span>
+<span class="fc" id="L153">                    .filter(p -&gt; p.getCity().equalsIgnoreCase(cityName))</span>
+<span class="fc" id="L154">                    .collect(Collectors.toList());</span>
+
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if(!personListInCity.isEmpty()){</span>
+<span class="fc" id="L157">                log.info(&quot;All emails from people who live in the city : &quot; + cityName + &quot; are retrieved.&quot;);</span>
+<span class="fc" id="L158">                return personListInCity.stream()</span>
+<span class="pc bpc" id="L159" title="2 of 4 branches missed.">                        .filter(person -&gt; (person.getEmail() != null &amp;&amp; !person.getEmail().isEmpty()))</span>
+<span class="fc" id="L160">                        .map(Person::getEmail)</span>
+<span class="fc" id="L161">                        .collect(Collectors.toList());</span>
+            }
+            else {
+<span class="fc" id="L164">                log.info(&quot;No email identified for city : &quot; + cityName);</span>
+<span class="fc" id="L165">                return new ArrayList&lt;&gt;();</span>
+            }
+        }
+        else {
+<span class="fc" id="L169">            log.error(&quot;Get emails for city failed :: can't search for a null or empty city&quot;);</span>
+<span class="fc" id="L170">            return new ArrayList&lt;&gt;();</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

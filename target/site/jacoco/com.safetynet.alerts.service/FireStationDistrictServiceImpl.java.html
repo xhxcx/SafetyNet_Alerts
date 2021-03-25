@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FireStationDistrictServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alerts</a> &gt; <a href="index.source.html" class="el_package">com.safetynet.alerts.service</a> &gt; <span class="el_source">FireStationDistrictServiceImpl.java</span></div><h1>FireStationDistrictServiceImpl.java</h1><pre class="source lang-java linenums">package com.safetynet.alerts.service;
+
+import com.safetynet.alerts.model.FireStation;
+import com.safetynet.alerts.model.MedicalRecord;
+import com.safetynet.alerts.model.Person;
+import com.safetynet.alerts.model.dto.*;
+import com.safetynet.alerts.repository.FireStationRepository;
+import com.safetynet.alerts.repository.MedicalRecordRepository;
+import com.safetynet.alerts.repository.PersonRepository;
+import com.safetynet.alerts.utils.AlertsDateUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+
+/**
+ * Implementation to manage and retrieve persons or information related to station fires operational area
+ *
+ */
+
+@Service
+<span class="fc" id="L27">public class FireStationDistrictServiceImpl implements FireStationDistrictService{</span>
+
+<span class="fc" id="L29">    private static final Logger log = LogManager.getLogger(FireStationDistrictService.class);</span>
+
+    @Autowired
+    private FireStationRepository fireStationRepository;
+
+    @Autowired
+    private PersonRepository personRepository;
+
+    @Autowired
+    private MedicalRecordRepository medicalRecordRepository;
+
+
+    /**
+     * Get the list of all phones of persons who live at an address covered by the given station number (may contains duplicates)
+     *
+     * @param stationNumber
+     * @return a list of string containing phone numbers if at least one person is covered, otherwise return an empty list
+     */
+    @Override
+    public List&lt;String&gt; getPhonesByStationNumber(int stationNumber) {
+<span class="fc" id="L49">        List&lt;String&gt; phoneList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L50">        List&lt;Person&gt; personsRelatedToFireStation = getPersonsByFireStation(stationNumber);</span>
+
+<span class="fc bfc" id="L52" title="All 2 branches covered.">        if(!personsRelatedToFireStation.isEmpty()){</span>
+<span class="fc" id="L53">            phoneList = personsRelatedToFireStation.stream()</span>
+<span class="fc" id="L54">                    .map(Person::getPhone)</span>
+<span class="fc" id="L55">                    .collect(Collectors.toList());</span>
+<span class="fc" id="L56">            log.info(&quot;Phone alert :: all phones retrieved for station : &quot; + stationNumber);</span>
+        }
+        else
+<span class="fc" id="L59">            log.error(&quot;Phone alert :: No person found for the district of fire station number : &quot; + stationNumber);</span>
+
+<span class="fc" id="L61">        return phoneList;</span>
+    }
+
+    /**
+     * Get a list of CoveredPerson for a station number and count how many children and adults are covered.
+     *
+     * @param stationNumber
+     * @return a FireStationDistrictDTO object containing the list of CoveredPerson and the counts
+     */
+    @Override
+    public FireStationDistrictDTO getFireStationDistrictCoverage(int stationNumber) {
+<span class="fc" id="L72">        FireStationDistrictDTO fireStationDistrictCoverage = new FireStationDistrictDTO();</span>
+<span class="fc" id="L73">        List&lt;CoveredPersonDTO&gt; coveredPersonList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L74">        int adultCount = 0;</span>
+<span class="fc" id="L75">        int childrenCount = 0;</span>
+
+<span class="fc" id="L77">        List&lt;Person&gt; personList = getPersonsByFireStation(stationNumber);</span>
+
+<span class="fc bfc" id="L79" title="All 2 branches covered.">        if(!personList.isEmpty()){</span>
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for(Person p : personList){</span>
+<span class="fc" id="L81">                CoveredPersonDTO coveredPerson = new CoveredPersonDTO();</span>
+<span class="fc" id="L82">                int personAge = -1;</span>
+<span class="fc" id="L83">                MedicalRecord pRecord = medicalRecordRepository.getMedicalRecordByName(p.getFirstName(),p.getLastName());</span>
+
+<span class="pc bpc" id="L85" title="1 of 2 branches missed.">                if (pRecord != null) {</span>
+<span class="fc" id="L86">                    personAge = new AlertsDateUtil().calculateAge(LocalDate.parse(pRecord.getBirthdate(), DateTimeFormatter.ofPattern(&quot;MM/dd/uuuu&quot;)));</span>
+                }
+
+<span class="fc" id="L89">                coveredPerson.setFirstName(p.getFirstName());</span>
+<span class="fc" id="L90">                coveredPerson.setLastName(p.getLastName());</span>
+<span class="fc" id="L91">                coveredPerson.setAddress(p.getAddress());</span>
+<span class="fc" id="L92">                coveredPerson.setPhone(p.getPhone());</span>
+<span class="fc" id="L93">                coveredPersonList.add(coveredPerson);</span>
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">                if (personAge &lt; 18)</span>
+<span class="fc" id="L96">                    childrenCount++;</span>
+                else
+<span class="fc" id="L98">                    adultCount++;</span>
+<span class="fc" id="L99">            }</span>
+<span class="fc" id="L100">            fireStationDistrictCoverage.setCoveredPersonDTOList(coveredPersonList);</span>
+<span class="fc" id="L101">            fireStationDistrictCoverage.setAdultCount(adultCount);</span>
+<span class="fc" id="L102">            fireStationDistrictCoverage.setChildrenCount(childrenCount);</span>
+<span class="fc" id="L103">            log.info(&quot;Get district coverage :: List of persons and population counts are returned for station : &quot; + stationNumber);</span>
+        }
+        else
+<span class="fc" id="L106">            log.error(&quot;Get district coverage :: No person covered by station : &quot; + stationNumber);</span>
+<span class="fc" id="L107">        return fireStationDistrictCoverage;</span>
+    }
+
+    /**
+     * Get the list of potential victims living in the area of the given address and the fire station numbers associated to the address
+     * Victim information returned : last name, phone, age, medications and allergies
+     *
+     * @param address
+     * @return FireDTO object containing the list of victims and the list of fire station numbers
+     */
+    @Override
+    public FireDTO getFireInformationByAddress(String address) {
+<span class="fc" id="L119">        FireDTO fireDTO = new FireDTO();</span>
+<span class="fc" id="L120">        List&lt;DisasterVictimDTO&gt; victimList = new ArrayList&lt;&gt;();</span>
+
+<span class="pc bpc" id="L122" title="1 of 4 branches missed.">        if(!address.isEmpty() &amp;&amp; address != null) {</span>
+            //Get station number par address + FireDTO set stationNumbers
+<span class="fc" id="L124">            List&lt;Integer&gt; stationNumbersForAddress = fireStationRepository.getFireStations()</span>
+<span class="fc" id="L125">                    .stream()</span>
+<span class="fc" id="L126">                    .filter(fireStation -&gt; fireStation.getAddress().equalsIgnoreCase(address))</span>
+<span class="fc" id="L127">                    .map(FireStation::getStation)</span>
+<span class="fc" id="L128">                    .collect(Collectors.toList());</span>
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">            if (!stationNumbersForAddress.isEmpty()) {</span>
+<span class="fc" id="L130">                fireDTO.setStationNumberList(stationNumbersForAddress);</span>
+            }
+            //Get person by address and process the list to match victims model
+<span class="fc" id="L133">            List&lt;Person&gt; personList = personRepository.getPersonsByAddress(address);</span>
+
+<span class="fc" id="L135">            personList.forEach(person -&gt; victimList.add(processPersonsIntoVictims(person)));</span>
+<span class="fc" id="L136">            fireDTO.setVictimList(victimList);</span>
+<span class="fc" id="L137">            log.info(&quot;Inhabitants and fire station numbers are retrieved for address : &quot; + address);</span>
+<span class="fc" id="L138">        }</span>
+        else
+<span class="fc" id="L140">            log.error(&quot;Get fire information :: Failed, can't retrieve information for null or empty address&quot;);</span>
+<span class="fc" id="L141">        return fireDTO;</span>
+    }
+
+    /**
+     * Get the list of potential victims covered by fire stations of given station numbers
+     * Victim information returned : last name, phone, age, medications and allergies
+     *
+     * @param stationNumbers
+     * @return FloodDTO object containing the list of victims grouped by address or empty map if no persons covered by stations
+     */
+    @Override
+    public FloodDTO getFloodInformationByStations(List&lt;Integer&gt; stationNumbers) {
+<span class="fc" id="L153">        FloodDTO floodDTO = new FloodDTO();</span>
+        //Get person list from station numbers
+<span class="fc" id="L155">        List&lt;Person&gt; globalPersonList = new ArrayList&lt;&gt;();</span>
+<span class="pc bpc" id="L156" title="1 of 4 branches missed.">        if (!stationNumbers.isEmpty() &amp;&amp; stationNumbers != null) {</span>
+<span class="fc" id="L157">            stationNumbers.forEach(station -&gt; globalPersonList.addAll(getPersonsByFireStation(station)));</span>
+
+<span class="fc bfc" id="L159" title="All 2 branches covered.">            if (!globalPersonList.isEmpty()) {</span>
+                //Create a map to group persons by address and then transform persons into DisasterVictimDTO
+<span class="fc" id="L161">                Map&lt;String, List&lt;Person&gt;&gt; personsGroupedByAddress = globalPersonList.stream().collect(Collectors.groupingBy(Person::getAddress));</span>
+<span class="fc" id="L162">                Map&lt;String, List&lt;DisasterVictimDTO&gt;&gt; familyMap = personsGroupedByAddress.entrySet().stream().collect(Collectors</span>
+<span class="fc" id="L163">                        .toMap(Map.Entry::getKey, entry -&gt; entry.getValue()</span>
+<span class="fc" id="L164">                                .stream().map(person -&gt; processPersonsIntoVictims(person))</span>
+<span class="fc" id="L165">                                .collect(Collectors.toList())));</span>
+
+<span class="fc" id="L167">                floodDTO.setFamilyByAddressList(familyMap);</span>
+<span class="fc" id="L168">                log.info(&quot;Families grouped by address retrieved for flood alert in stations : &quot; + stationNumbers);</span>
+<span class="fc" id="L169">            } else {</span>
+<span class="fc" id="L170">                floodDTO.setFamilyByAddressList(new HashMap&lt;&gt;());</span>
+<span class="fc" id="L171">                log.info(&quot;Flood information :: Nothing to retrieve for station numbers : &quot; + stationNumbers);</span>
+            }
+        }
+        else{
+<span class="fc" id="L175">            log.error(&quot;Flood information :: Failed, can't retrieve information for empty or null stations&quot;);</span>
+<span class="fc" id="L176">            return null;</span>
+        }
+
+<span class="fc" id="L179">        return floodDTO;</span>
+    }
+
+    /**
+     * Get all persons covered by stations with a given station number
+     * @param stationNumber
+     * @return a list of persons or an empty list if no persons covered
+     */
+    private List&lt;Person&gt; getPersonsByFireStation(int stationNumber){
+<span class="fc" id="L188">        List&lt;Person&gt; personList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L189">        log.debug(&quot;Get dependent persons from station : &quot; + stationNumber);</span>
+        //Get all address covered by a station number
+<span class="fc" id="L191">        List&lt;String&gt; addressList = fireStationRepository.getFireStations().stream()</span>
+<span class="fc bfc" id="L192" title="All 2 branches covered.">                .filter(fireStation -&gt; fireStation.getStation() == stationNumber)</span>
+<span class="fc" id="L193">                .map(FireStation::getAddress)</span>
+<span class="fc" id="L194">                .distinct()</span>
+<span class="fc" id="L195">                .collect(Collectors.toList());</span>
+
+        //Build a list of person parsing every fire station addresses
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (!addressList.isEmpty()) {</span>
+<span class="fc" id="L199">            addressList.forEach(address -&gt; {</span>
+<span class="fc" id="L200">                List&lt;Person&gt; personsAtAddress = personRepository.getPersonsByAddress(address);</span>
+<span class="pc bpc" id="L201" title="1 of 2 branches missed.">                if (!personsAtAddress.isEmpty())</span>
+<span class="fc" id="L202">                    personList.addAll(personsAtAddress);</span>
+<span class="fc" id="L203">            });</span>
+        }
+<span class="fc" id="L205">        return personList;</span>
+    }
+
+    /**
+     * Aggregate information from person and medical record to build a DisasterVictimDTO object
+     * A DisasterVictimDTO contains following information : lastName, phone, age, medications, allergies
+     *
+     * @param person
+     * @return a DisasterVictimDTO or null if parameter is null
+     */
+    private DisasterVictimDTO processPersonsIntoVictims(Person person) {
+<span class="fc" id="L216">        DisasterVictimDTO victim = new DisasterVictimDTO();</span>
+
+<span class="fc" id="L218">        log.debug(&quot;Process a DisasterVictim from person : &quot; + person);</span>
+<span class="pc bpc" id="L219" title="1 of 2 branches missed.">        if (person != null) {</span>
+<span class="fc" id="L220">            MedicalRecord victimRecord = medicalRecordRepository.getMedicalRecordByName(person.getFirstName(), person.getLastName());</span>
+
+<span class="fc" id="L222">            victim.setLastName(person.getLastName());</span>
+<span class="fc" id="L223">            victim.setPhone(person.getPhone());</span>
+
+<span class="pc bpc" id="L225" title="1 of 2 branches missed.">            if (victimRecord != null) {</span>
+<span class="fc" id="L226">                victim.setAge(new AlertsDateUtil().calculateAge(LocalDate.parse(victimRecord.getBirthdate(), DateTimeFormatter.ofPattern(&quot;MM/dd/uuuu&quot;))));</span>
+<span class="fc" id="L227">                victim.setMedications(victimRecord.getMedications());</span>
+<span class="fc" id="L228">                victim.setAllergies(victimRecord.getAllergies());</span>
+            }
+<span class="fc" id="L230">        }</span>
+        else
+<span class="nc" id="L232">            return null;</span>
+<span class="fc" id="L233">        return victim;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

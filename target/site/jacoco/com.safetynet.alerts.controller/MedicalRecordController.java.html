@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MedicalRecordController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alerts</a> &gt; <a href="index.source.html" class="el_package">com.safetynet.alerts.controller</a> &gt; <span class="el_source">MedicalRecordController.java</span></div><h1>MedicalRecordController.java</h1><pre class="source lang-java linenums">package com.safetynet.alerts.controller;
+
+import com.safetynet.alerts.model.MedicalRecord;
+import com.safetynet.alerts.service.MedicalRecordService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+
+@RestController
+<span class="fc" id="L14">public class MedicalRecordController {</span>
+
+    @Autowired
+    private MedicalRecordService medicalRecordService;
+
+    /**
+     * Endpoint to get the list of all MedicalRecords
+     *
+     * @return the whole list of MedicalRecords
+     *
+     */
+    @GetMapping(&quot;/medicalRecords&quot;)
+    public List&lt;MedicalRecord&gt; getAllMedicalRecords(){
+<span class="fc" id="L27">        return medicalRecordService.getMedicalRecords();</span>
+    }
+
+    /**
+     * Endpoint to create a new medical record
+     *
+     * @param medicalRecordToCreate as JSON in the body of the request
+     *
+     * @return a 201 ResponseEntity with medical record or throws a ResponseStatusException with BAD_REQUEST
+     */
+    @PostMapping(&quot;/medicalRecord&quot;)
+    public ResponseEntity&lt;?&gt; createMedicalRecord(@RequestBody MedicalRecord medicalRecordToCreate){
+<span class="fc" id="L39">        MedicalRecord medicalRecordCreated = medicalRecordService.saveMedicalRecord(medicalRecordToCreate);</span>
+<span class="pc bpc" id="L40" title="1 of 2 branches missed.">        if (medicalRecordCreated == null){</span>
+<span class="nc" id="L41">            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,&quot;Invalid argument to create a medical record&quot;);</span>
+        }
+        else
+<span class="fc" id="L44">            return new ResponseEntity&lt;&gt;(medicalRecordToCreate, HttpStatus.CREATED);</span>
+    }
+
+    /**
+     * Endpoint to update a given medical record based on the combination of first name and last name
+     * @param medicalRecordToUpdate as JSON in the body of the request
+     * @return A 200 ResponseEntity with the updated medical record as JSON or throws a ResponseStatusException with NOT_FOUND
+     */
+    @PutMapping(&quot;/medicalRecord&quot;)
+    public ResponseEntity&lt;?&gt; updateMedicalRecord(@RequestBody MedicalRecord medicalRecordToUpdate){
+<span class="fc" id="L54">        MedicalRecord medicalRecordUpdated = medicalRecordService.updateMedicalRecord(medicalRecordToUpdate);</span>
+<span class="pc bpc" id="L55" title="1 of 2 branches missed.">        if (medicalRecordUpdated == null){</span>
+<span class="nc" id="L56">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Medical record doesn't exist for this person&quot;);</span>
+        }
+        else
+<span class="fc" id="L59">            return new ResponseEntity&lt;&gt;(medicalRecordToUpdate, HttpStatus.OK);</span>
+
+    }
+
+    /**
+     * Endpoint to delete a medical record based on the combination of first name and last name
+     * @param firstName as 1st parameter
+     * @param lastName as 2nd parameter
+     * @return A 200 ResponseEntity or throws a ResponseStatusException with NOT_FOUND
+     */
+    @DeleteMapping(&quot;/medicalRecord&quot;)
+    public ResponseEntity&lt;?&gt; deleteMedicalRecord(@RequestParam(&quot;firstName&quot;) String firstName, @RequestParam(&quot;lastName&quot;) String lastName){
+<span class="fc" id="L71">        Boolean deleteStatus = medicalRecordService.deleteMedicalRecord(firstName,lastName);</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (!deleteStatus){</span>
+<span class="nc" id="L73">            throw new ResponseStatusException(HttpStatus.NOT_FOUND, &quot;Medical record doesn't exist for this person&quot;);</span>
+        }
+        else
+<span class="fc" id="L76">            return new ResponseEntity&lt;&gt;(HttpStatus.OK);</span>
+
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

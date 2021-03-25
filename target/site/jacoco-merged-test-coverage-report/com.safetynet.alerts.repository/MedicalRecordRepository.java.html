@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="fr"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MedicalRecordRepository.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alerts</a> &gt; <a href="index.source.html" class="el_package">com.safetynet.alerts.repository</a> &gt; <span class="el_source">MedicalRecordRepository.java</span></div><h1>MedicalRecordRepository.java</h1><pre class="source lang-java linenums">package com.safetynet.alerts.repository;
+
+import com.safetynet.alerts.model.AlertsData;
+import com.safetynet.alerts.model.MedicalRecord;
+import com.safetynet.alerts.utils.AlertsDataOutputWriter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+<span class="fc" id="L13">public class MedicalRecordRepository {</span>
+
+    @Autowired
+    private AlertsData getAlertsData;
+
+    @Autowired
+    private AlertsDataOutputWriter alertsDataOutputWriter;
+
+    @Value(&quot;${outputFilePath}&quot;)
+    private String outputFilePath;
+
+<span class="fc" id="L24">    public List&lt;MedicalRecord&gt; getMedicalRecords() { return getAlertsData.getMedicalrecords(); }</span>
+
+    public MedicalRecord createMedicalRecord(MedicalRecord medicalRecord) {
+<span class="fc" id="L27">        getAlertsData.getMedicalrecords().add(medicalRecord);</span>
+<span class="fc" id="L28">        alertsDataOutputWriter.writeAsJsonIntoFile(getAlertsData,outputFilePath);</span>
+<span class="fc" id="L29">        return medicalRecord;</span>
+    }
+
+    public MedicalRecord updateMedicalRecord(MedicalRecord medicalRecord) {
+<span class="fc" id="L33">        MedicalRecord medicalRecordToModify = getAlertsData.getMedicalrecords().stream()</span>
+<span class="pc bpc" id="L34" title="1 of 4 branches missed.">                .filter((medRecord)-&gt;medRecord.getFirstName().equalsIgnoreCase(medicalRecord.getFirstName()) &amp;&amp; medRecord.getLastName().equalsIgnoreCase(medicalRecord.getLastName()))</span>
+<span class="fc" id="L35">                .findAny()</span>
+<span class="fc" id="L36">                .orElse(null);</span>
+<span class="pc bpc" id="L37" title="1 of 2 branches missed.">        if (medicalRecordToModify != null){</span>
+<span class="fc" id="L38">            getAlertsData.getMedicalrecords().set(getAlertsData.getMedicalrecords().indexOf(medicalRecordToModify),medicalRecord);</span>
+<span class="fc" id="L39">            alertsDataOutputWriter.writeAsJsonIntoFile(getAlertsData,outputFilePath);</span>
+        }
+<span class="fc" id="L41">        return medicalRecord;</span>
+    }
+
+    public void deleteMedicalRecord(MedicalRecord medicalRecord) {
+<span class="fc" id="L45">        getAlertsData.getMedicalrecords().remove(medicalRecord);</span>
+<span class="fc" id="L46">        alertsDataOutputWriter.writeAsJsonIntoFile(getAlertsData,outputFilePath);</span>
+<span class="fc" id="L47">    }</span>
+
+    public MedicalRecord getMedicalRecordByName(String firstName, String lastName){
+<span class="fc" id="L50">        return getAlertsData.getMedicalrecords().stream()</span>
+<span class="pc bpc" id="L51" title="1 of 4 branches missed.">                .filter(person -&gt; firstName.equalsIgnoreCase(person.getFirstName()) &amp;&amp; lastName.equalsIgnoreCase(person.getLastName()))</span>
+<span class="fc" id="L52">                .findAny()</span>
+<span class="fc" id="L53">                .orElse(null);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>

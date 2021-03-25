@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AlertsConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">alerts</a> &gt; <a href="index.source.html" class="el_package">com.safetynet.alerts.config</a> &gt; <span class="el_source">AlertsConfig.java</span></div><h1>AlertsConfig.java</h1><pre class="source lang-java linenums">package com.safetynet.alerts.config;
+
+import com.safetynet.alerts.model.AlertsData;
+import com.safetynet.alerts.utils.InputDataReader;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.trace.http.HttpTraceRepository;
+import org.springframework.boot.actuate.trace.http.InMemoryHttpTraceRepository;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.PostConstruct;
+
+@Configuration
+<span class="fc" id="L14">public class AlertsConfig {</span>
+
+    @Value(&quot;${dataFilePath}&quot;)
+    private String dataFilePath;
+
+    /**
+     * At the initialization of the application create a bean containing data read as POJO
+     *
+     * @return AlertsData object with personList, firestationsList and medicalrecordsList
+     */
+    @Bean
+    @PostConstruct
+<span class="fc" id="L26">    public AlertsData getAlertsDatas(){return new InputDataReader().loadData(dataFilePath);}</span>
+
+    /**
+     * Init HttpTraceRepository bean to use http trace actuator
+     *
+     * @return an InMemoryHttpTraceRepository
+     */
+    @Bean
+    public HttpTraceRepository httpTraceRepository() {
+<span class="fc" id="L35">        return new InMemoryHttpTraceRepository();</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.5.201910111838</span></div></body></html>
